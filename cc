@@ -174,7 +174,6 @@ local INFJumpToggle = MainTab:CreateToggle({
    CurrentValue = false,
    Callback = function(v)
       infJump = v
-
    end
 })
 
