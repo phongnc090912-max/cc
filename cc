@@ -384,48 +384,25 @@ local flyspeedSlider = FlyTab:CreateSlider({
 })
 
 local godmode = false
-local humanoid
-local characterGodmode
 
-local function bindCharacterGodmode(char)
-   characterGodmode = char
-   humanoid = char:WaitForChild("Humanoid")
+local function bindHumainoid(humanoid)
+   humanoid.Health = 100
+   humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+      if humanoid.Health ~= 100 then
+         humanoid.Health = 100
+      end
+   end)
 end
 
 local function onCharacterGodmode(char)
-   bindCharacterGodmode(char)
+   local humanoid = char:WaitForChild("Humanoid")
+   bindHumanoid(humanoid)
 end
-
 
 if player.Character then
    onCharacterGodmode(player.Character)
 end
 player.CharacterAdded:Connect(onCharacterGodmode)
-
-local function applyGodmode()
-   if not godmode then return end
-   if not humanoid then return end
-
-   if humanoid.Health < humanoid.MaxHealth then
-      humanoid.Health = humanoid.MaxHealth
-   end
-end
-
-local function setupGodmode()
-   humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-      applyGodmode()
-   end)
-end
-
-if humanoid then
-   setupGodmode()
-end
-
-player.CharacterAdded:Connect(function(char)
-   local hum = char:WaitForChild("Humanoid")
-   humanoid = hum
-   setupGodmode()
-end)
 
 local GodmodeToggle = GodmodeTab:CreateToggle({
    Name = "Godmode",
