@@ -4,7 +4,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Vo1d Scripts",
-   Icon = 0,        
+   Icon = 6077083362,        
    LoadingTitle = "Vo1d Scripts",
    LoadingSubtitle = "by Vo1d",
    ShowText = "Vo1d",
