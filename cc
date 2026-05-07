@@ -34,7 +34,6 @@ local Window = Rayfield:CreateWindow({
 })
 
 local InfoTab = Window:CreateTab("Info", nil)
-
 local MainTab = Window:CreateTab("Movement", nil)
 local FlyTab = Window:CreateTab("Fly", nil)
 
@@ -53,10 +52,10 @@ Rayfield:Notify({
    }
 })
 
-Tab_Info:CreateLabel("Script developed by Vo1d",        "code",     Color3.fromRGB(80,80,80), false)
-Tab_Info:CreateLabel("All scripts were written manually",     "terminal", Color3.fromRGB(80,80,80), false)
-Tab_Info:CreateLabel("Specifically for all games",          "crosshair",Color3.fromRGB(80,80,80), false)
-Tab_Info:CreateLabel("Thank you for using my script",        "heart",    Color3.fromRGB(80,80,80), false)
+InfoTab:CreateLabel("Script developed by Vo1d",        "code",     Color3.fromRGB(80,80,80), false)
+InfoTab:CreateLabel("All scripts were written manually",     "terminal", Color3.fromRGB(80,80,80), false)
+InfoTab:CreateLabel("Specifically for all games",          "crosshair",Color3.fromRGB(80,80,80), false)
+InfoTab:CreateLabel("Thank you for using my script",        "heart",    Color3.fromRGB(80,80,80), false)
 
 local player = game.Players.LocalPlayer
 local speed = 16
