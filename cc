@@ -267,7 +267,7 @@ local flyToggle = FlyTab:CreateToggle({
 })
 
 local flyspeedSlider = FlyTab:CreateSlider({
-   Name = "Fly speed"
+   Name = "Fly speed",
    Range = {10, 360},
    Increment = 1,
    Suffix = "speed",
