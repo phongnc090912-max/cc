@@ -25,7 +25,7 @@ local Window = Rayfield:CreateWindow({
    KeySettings = {
       Title = "Vo1d | Key",
       Subtitle = "Key System",
-      Note = "Get the key on https://docs.google.com/document/d/16iatNXWzFK39oa7oYVQ7656TTHumxM2pPDUw7Wc3iVI/edit?hl=vi&tab=t.0",
+      Note = "The key is: phongdeptrai090912!",
       FileName = "Key",
       SaveKey = true,
       GrabKeyFromSite = false,
