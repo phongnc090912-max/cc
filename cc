@@ -35,7 +35,6 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Movement", nil)
 local FlyTab = Window:CreateTab("Fly", nil)
-local VisualTab = Window:CreateTab("Visual", nil)
 
 Rayfield:Notify({
    Title = "TOOL EXECUTED",
@@ -55,7 +54,7 @@ Rayfield:Notify({
 local player = game.Players.LocalPlayer
 local speed = 16
 
-local function bindHumanoidWalkSpeed(humanoid)
+local function bindHumanoid(humanoid)
    humanoid.WalkSpeed = speed
    humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
       if humanoid.WalkSpeed ~= speed then
@@ -66,7 +65,7 @@ end
 
 local function onCharacterSpeed(char)
    local humanoid = char:WaitForChild("Humanoid")
-   bindHumanoidWalkSpeed(humanoid)
+   bindHumanoid(humanoid)
 end
 
 if player.Character then
@@ -96,7 +95,7 @@ local RunService = game:GetService("RunService")
 
 local jumpPower = 50
 
-local function bindHumanoidJumpPower(humanoid)
+local function bindHumanoid(humanoid)
    humanoid.UseJumpPower = true
    humanoid.JumpPower = jumpPower
    humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
@@ -108,7 +107,7 @@ end
 
 local function onCharacterJumpPower(char)
    local humanoid = char:WaitForChild("Humanoid")
-   bindHumanoidJumpPower(humanoid)
+   bindHumanoid(humanoid)
 end
 
 if player.Character then
@@ -168,6 +167,7 @@ local INFJumpToggle = MainTab:CreateToggle({
    CurrentValue = false,
    Callback = function(v)
       infJump = v
+
    end
 })
 
@@ -176,6 +176,7 @@ local characterNoclip
 
 local function bindCharacterNoclip(char)
    characterNoclip = char
+   root = char:WaitForChild("HumanoidRootPart")
 end
 
 local function onCharacterNoclip(char)
@@ -224,6 +225,15 @@ local fly = false
 local flyspeed = 50
 local root
 
+local camera = workspace.CurrentCamera
+
+local keys = {
+   W = false,
+   A = false,
+   S = false,
+   D = false
+}
+
 local function bindCharacterFly(char)
    root = char:WaitForChild("HumanoidRootPart")
 end
@@ -233,19 +243,89 @@ local function onCharacterFly(char)
 end
 
 if player.Character then
-    onCharacterFly(player.Character)
+   onCharacterFly(player.Character)
 end
+
 player.CharacterAdded:Connect(onCharacterFly)
+
+UIS.InputBegan:Connect(function(input, gpe)
+   if gpe then return end
+
+   if input.KeyCode == Enum.KeyCode.W then
+      keys.W = true
+   end
+
+   if input.KeyCode == Enum.KeyCode.A then
+      keys.A = true
+   end
+
+   if input.KeyCode == Enum.KeyCode.S then
+      keys.S = true
+   end
+
+   if input.KeyCode == Enum.KeyCode.D then
+      keys.D = true
+   end
+end)
+
+UIS.InputEnded:Connect(function(input)
+   if input.KeyCode == Enum.KeyCode.W then
+      keys.W = false
+   end
+
+   if input.KeyCode == Enum.KeyCode.A then
+      keys.A = false
+   end
+
+   if input.KeyCode == Enum.KeyCode.S then
+      keys.S = false
+   end
+
+   if input.KeyCode == Enum.KeyCode.D then
+      keys.D = false
+   end
+end)
 
 local function applyFly()
    if not fly then return end
    if not root then return end
-   root.AssemblyLinearVelocity = Vector3.new(0, flyspeed, 0)
+
+   local moveDirection = Vector3.zero
+
+   local lookVector = camera.CFrame.LookVector
+   local rightVector = camera.CFrame.RightVector
+
+   if keys.W then
+      moveDirection += lookVector
+   end
+
+   if keys.S then
+      moveDirection -= lookVector
+   end
+
+   if keys.A then
+      moveDirection -= rightVector
+   end
+
+   if keys.D then
+      moveDirection += rightVector
+   end
+
+   moveDirection = Vector3.new(
+      moveDirection.X,
+      0,
+      moveDirection.Z
+   )
+
+   if moveDirection.Magnitude > 0 then
+      moveDirection = moveDirection.Unit
+   end
+
+   root.AssemblyLinearVelocity =
+      moveDirection * flyspeed
 end
 
-RunService.Stepped:Connect(function()
-   applyFly()
-end)
+RunService.Stepped:Connect(applyFly)
 
 local function resetFly()
    if root then
@@ -272,83 +352,5 @@ local flyspeedSlider = FlyTab:CreateSlider({
    CurrentValue = 50,
    Callback = function(v)
       flyspeed = v
-   end
-})
-
-local ESP = false
-
-local function getTargets()
-   local targets = {}
-
-   for _, plr in pairs(game.Players:GetPlayers()) do
-      if plr ~= player then
-
-         local char = plr.Character
-
-         if char then
-            local root = char:FindFirstChild("HumanoidRootPart")
-
-            if root then
-               table.insert(targets, root)
-            end
-         end
-      end
-   end
-
-   return targets
-end
-
-local function applyESP(target)
-   if target:FindFirstChild("Vo1dESP") then return end
-
-   local box = Instance.new("SelectionBox")
-   box.Name = "Vo1dESP"
-
-   box.Adornee = target
-   box.LineThickness = 0.05
-
-   box.Parent = target
-end
-
-local function updateESP()
-   if not ESP then return end
-
-   local targets = getTargets()
-
-   for _, target in ipairs(targets) do
-      applyESP(target)
-   end
-end
-
-RunService.Stepped:Connect(updateESP)
-
-local function resetESP()
-   for _, plr in pairs(game.Players:GetPlayers()) do
-
-      if plr ~= player then
-
-         local char = plr.Character
-
-         if char then
-
-            local espObject = root:FindFirstChild("Vo1dESP")
-
-            if espObject then
-               espObject:Destroy()
-            end
-
-         end
-      end
-   end
-end
-
-local ESPToggle = VisualTab:CreateToggle({
-   Name = "ESP Player",
-   CurrentValue = false,
-   Callback = function(v)
-      ESP = v
-      if not v then
-         resetESP()
-      end
    end
 })
