@@ -3,14 +3,14 @@ local key = {string.char(112,104,111,110,103,100,101,112,116,114,97,105,48,57,48
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Vo1d scripts",
+   Name = "Vo1d Scripts",
    Icon = 0,        
-   LoadingTitle = "Exploit tool",
+   LoadingTitle = "Vo1d Scripts",
    LoadingSubtitle = "by Vo1d",
    ShowText = "Vo1d",
    Theme = "AmberGlow",
 
-   ToggleUIKeybind = "K",
+   ToggleUIKeybind = Enum.KeyCode.F5,
 
    DisableRayfieldPrompts = false,
    DisableBuildWarnings = false,
