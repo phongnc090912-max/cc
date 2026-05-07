@@ -8,7 +8,7 @@ local Window = Rayfield:CreateWindow({
    LoadingTitle = "Exploit tool",
    LoadingSubtitle = "by Vo1d",
    ShowText = "Vo1d",
-   Theme = "Amethyst",
+   Theme = "AmberGlow",
 
    ToggleUIKeybind = "K",
 
