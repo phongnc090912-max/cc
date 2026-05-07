@@ -8,7 +8,7 @@ local Window = Rayfield:CreateWindow({
    LoadingTitle = "Exploit tool",
    LoadingSubtitle = "by Vo1d",
    ShowText = "Vo1d",
-   Theme = "AmberGlow",
+   Theme = "Amethyst",
 
    ToggleUIKeybind = "K",
 
@@ -25,7 +25,7 @@ local Window = Rayfield:CreateWindow({
    KeySettings = {
       Title = "Vo1d | Key",
       Subtitle = "Key System",
-      Note = "The key is: phongdeptrai090912!",
+      Note = "Get the key on https://docs.google.com/document/d/16iatNXWzFK39oa7oYVQ7656TTHumxM2pPDUw7Wc3iVI/edit?hl=vi&tab=t.0",
       FileName = "Key",
       SaveKey = true,
       GrabKeyFromSite = false,
@@ -35,6 +35,7 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Movement", nil)
 local FlyTab = Window:CreateTab("Fly", nil)
+local VisualTab = Window:CreateTab("Visual", nil)
 
 Rayfield:Notify({
    Title = "TOOL EXECUTED",
@@ -167,5 +168,189 @@ local INFJumpToggle = MainTab:CreateToggle({
    CurrentValue = false,
    Callback = function(v)
       infJump = v
+
+   end
+})
+
+local noclip = false
+local characterNoclip
+
+local function bindCharacterNoclip(char)
+   characterNoclip = char
+   root = char:WaitForChild("HumanoidRootPart")
+end
+
+local function onCharacterNoclip(char)
+   bindCharacterNoclip(char)
+end
+
+if player.Character then
+    onCharacterNoclip(player.Character)
+end
+player.CharacterAdded:Connect(onCharacterNoclip)
+
+local function applyNoclip()
+   if not noclip or not characterNoclip then return end
+
+   for _, v in pairs(characterNoclip:GetDescendants()) do
+      if v:IsA("BasePart") then
+         v.CanCollide = false
+      end
+   end
+end
+
+RunService.Stepped:Connect(applyNoclip)
+
+local function resetNoclip()
+   if not characterNoclip then return end
+
+   for _, v in pairs(characterNoclip:GetDescendants()) do
+      if v:IsA("BasePart") then
+         v.CanCollide = true
+      end
+   end
+end
+
+local noclipToggle = FlyTab:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Callback = function(v)
+      noclip = v
+      if not v then
+         resetNoclip()
+      end
+   end
+})
+
+local fly = false
+local flyspeed = 50
+local root
+
+local function bindCharacterFly(char)
+   root = char:WaitForChild("HumanoidRootPart")
+end
+
+local function onCharacterFly(char)
+   bindCharacterFly(char)
+end
+
+if player.Character then
+    onCharacterFly(player.Character)
+end
+player.CharacterAdded:Connect(onCharacterFly)
+
+local function applyFly()
+   if not fly then return end
+   if not root then return end
+   root.Velocity = Vector3.new(0, flyspeed, 0)
+end
+
+RunService.Stepped:Connect(function()
+   applyFly()
+end)
+
+local function resetFly()
+   if root then
+      root.Velocity = Vector3.zero
+   end
+end
+
+local flyToggle = FlyTab:CreateToggle({
+   Name = "Fly",
+   CurrentValue = false,
+   Callback = function(v)
+      fly = v
+      if not v then
+         resetFly()
+      end
+   end
+})
+
+local flyspeedSlider = FlyTab:CreateSlider({
+   Name = "Fly speed"
+   Range = {10, 360},
+   Increment = 1,
+   Suffix = "speed",
+   CurrentValue = 50,
+   Callback = function(v)
+      flyspeed = v
+   end
+})
+
+local ESP = false
+
+local function getTargets()
+   local targets = {}
+
+   for _, plr in pairs(game.Players:GetPlayers()) do
+      if plr ~= player then
+
+         local char = plr.Character
+
+         if char then
+            local root = char:FindFirstChild("HumanoidRootPart")
+
+            if root then
+               table.insert(targets, char)
+            end
+         end
+      end
+   end
+
+   return targets
+end
+
+local function applyESP(target)
+   if target:FindFirstChild("Vo1dESP") then return end
+
+   local box = Instance.new("SelectionBox")
+   box.Name = "Vo1dESP"
+
+   box.Adornee = target
+   box.LineThickness = 0.05
+
+   box.Parent = target
+end
+
+local function updateESP()
+   if not ESP then return end
+
+   local targets = getTargets()
+
+   for _, target in ipairs(targets) do
+      applyESP(target)
+   end
+end
+
+RunService.Stepped:Connect(updateESP)
+
+local function resetESP()
+   for _, plr in pairs(game.Players:GetPlayers()) do
+
+      if plr ~= player then
+
+         local char = plr.Character
+
+         if char then
+
+            local espObject = char:FindFirstChild("Vo1dESP")
+
+            if espObject then
+               espObject:Destroy()
+            end
+
+         end
+      end
+   end
+end
+
+local ESPToggle = VisualTab:CreateToggle({
+   Name = "ESP Player",
+   CurrentValue = false,
+   Callback = function(v)
+      ESP = v
+      if not v then
+         resetESP()
+      end
    end
 })
