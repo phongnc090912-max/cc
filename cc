@@ -35,7 +35,6 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Movement", nil)
 local FlyTab = Window:CreateTab("Fly", nil)
-local GodmodeTab = Window:CreateTab("Godmode", nil)
 
 Rayfield:Notify({
    Title = "TOOL EXECUTED",
@@ -380,34 +379,5 @@ local flyspeedSlider = FlyTab:CreateSlider({
 
    Callback = function(v)
       flyspeed = v
-   end
-})
-
-local godmode = false
-
-local function bindHumainoid(humanoid)
-   humanoid.Health = 100
-   humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-      if humanoid.Health ~= 100 then
-         humanoid.Health = 100
-      end
-   end)
-end
-
-local function onCharacterGodmode(char)
-   local humanoid = char:WaitForChild("Humanoid")
-   bindHumanoid(humanoid)
-end
-
-if player.Character then
-   onCharacterGodmode(player.Character)
-end
-player.CharacterAdded:Connect(onCharacterGodmode)
-
-local GodmodeToggle = GodmodeTab:CreateToggle({
-   Name = "Godmode",
-   CurrentValue = false,
-   Callback = function(v)
-      godmode = v
    end
 })
