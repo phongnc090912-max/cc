@@ -36,7 +36,6 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Movement", nil)
 local FlyTab = Window:CreateTab("Fly", nil)
 local GodmodeTab = Window:CreateTab("Godmode", nil)
-local HitboxTab = Window:CreateTab("Hitbox", nil)
 
 Rayfield:Notify({
    Title = "TOOL EXECUTED",
@@ -433,63 +432,5 @@ local GodmodeToggle = GodmodeTab:CreateToggle({
    CurrentValue = false,
    Callback = function(v)
       godmode = v
-   end
-})
-
-local hitbox = false
-local hitboxsize = 10
-local characterHitbox
-local root
-
-local function bindCharacterHitbox(char)
-   characterHitbox = char
-   root = char:WaitForChild("HumanoidRootPart")
-end
-
-if player.Character then
-   bindCharacterHitbox(player.Character)
-end
-player.CharacterAdded:Connect(bindCharacterHitbox)
-
-local function applyHitbox()
-   if not hitbox then return end
-   if not root then return end
-
-   root.Size = Vector3.new(size, size, size)
-   root.Transparency = 0.5
-   root.CanCollide = false
-   root.Massless = true
-end
-
-local function resetHitbox()
-   if not root then return end
-
-   root.Size = Vector3.new(2, 2, 1)
-   root.Transparency = 1
-   root.CanCollide = true
-end
-
-game:GetService("RunService").Stepped:Connect(function()
-   applyHitbox()
-end)
-
-local HitboxToggle = HitboxTab:CreateToggle({
-   Name = "Hitbox Expander",
-   CurrentValue = false,
-   Callback = function(v)
-      hitbox = v
-      if not v then
-         resetHitbox()
-      end
-   end
-})
-
-local HitboxSlider = HitboxTab:CreateSlider({
-   Name = "Hitbox Size",
-   Range = {2, 50},
-   Increment = 1,
-   CurrentValue = 10,
-   Callback = function(v)
-      hitboxSize = v
    end
 })
