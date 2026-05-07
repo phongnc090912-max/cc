@@ -222,8 +222,10 @@ local noclipToggle = FlyTab:CreateToggle({
 })
 
 local fly = false
-local flyspeed = 50
+local flyspeed = 2
+
 local root
+local humanoid
 
 local camera = workspace.CurrentCamera
 
@@ -234,8 +236,10 @@ local keys = {
    D = false
 }
 
+--// CHARACTER
 local function bindCharacterFly(char)
    root = char:WaitForChild("HumanoidRootPart")
+   humanoid = char:WaitForChild("Humanoid")
 end
 
 local function onCharacterFly(char)
@@ -248,6 +252,7 @@ end
 
 player.CharacterAdded:Connect(onCharacterFly)
 
+--// INPUT
 UIS.InputBegan:Connect(function(input, gpe)
    if gpe then return end
 
@@ -286,6 +291,7 @@ UIS.InputEnded:Connect(function(input)
    end
 end)
 
+--// APPLY
 local function applyFly()
    if not fly then return end
    if not root then return end
@@ -311,25 +317,21 @@ local function applyFly()
       moveDirection += rightVector
    end
 
-   moveDirection = Vector3.new(
-      moveDirection.X,
-      0,
-      moveDirection.Z
-   )
-
    if moveDirection.Magnitude > 0 then
       moveDirection = moveDirection.Unit
    end
 
-   root.AssemblyLinearVelocity =
-      moveDirection * flyspeed
+   root.CFrame =
+      root.CFrame +
+      (moveDirection * flyspeed)
 end
 
-RunService.Stepped:Connect(applyFly)
+RunService.RenderStepped:Connect(applyFly)
 
+--// RESET
 local function resetFly()
-   if root then
-      root.AssemblyLinearVelocity = Vector3.zero
+   if humanoid then
+      humanoid.PlatformStand = false
    end
 end
 
