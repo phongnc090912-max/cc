@@ -430,14 +430,7 @@ end)
 local GodmodeToggle = GodmodeTab:CreateToggle({
    Name = "Godmode",
    CurrentValue = false,
-
    Callback = function(v)
       godmode = v
-
-      if not v then
-         resetGodmode()
-      else
-         applyGodmode()
-      end
    end
 })
