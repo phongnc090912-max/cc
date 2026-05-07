@@ -55,7 +55,7 @@ Rayfield:Notify({
 local player = game.Players.LocalPlayer
 local speed = 16
 
-local function bindHumanoid(humanoid)
+local function bindHumanoidWalkSpeed(humanoid)
    humanoid.WalkSpeed = speed
    humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
       if humanoid.WalkSpeed ~= speed then
@@ -66,7 +66,7 @@ end
 
 local function onCharacterSpeed(char)
    local humanoid = char:WaitForChild("Humanoid")
-   bindHumanoid(humanoid)
+   bindHumanoidWalkSpeed(humanoid)
 end
 
 if player.Character then
@@ -96,7 +96,7 @@ local RunService = game:GetService("RunService")
 
 local jumpPower = 50
 
-local function bindHumanoid(humanoid)
+local function bindHumanoidJumpPower(humanoid)
    humanoid.UseJumpPower = true
    humanoid.JumpPower = jumpPower
    humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
@@ -108,7 +108,7 @@ end
 
 local function onCharacterJumpPower(char)
    local humanoid = char:WaitForChild("Humanoid")
-   bindHumanoid(humanoid)
+   bindHumanoidJumpPower(humanoid)
 end
 
 if player.Character then
@@ -168,7 +168,6 @@ local INFJumpToggle = MainTab:CreateToggle({
    CurrentValue = false,
    Callback = function(v)
       infJump = v
-
    end
 })
 
@@ -177,7 +176,6 @@ local characterNoclip
 
 local function bindCharacterNoclip(char)
    characterNoclip = char
-   root = char:WaitForChild("HumanoidRootPart")
 end
 
 local function onCharacterNoclip(char)
@@ -242,7 +240,7 @@ player.CharacterAdded:Connect(onCharacterFly)
 local function applyFly()
    if not fly then return end
    if not root then return end
-   root.Velocity = Vector3.new(0, flyspeed, 0)
+   root.AssemblyLinearVelocity = Vector3.new(0, flyspeed, 0)
 end
 
 RunService.Stepped:Connect(function()
@@ -251,7 +249,7 @@ end)
 
 local function resetFly()
    if root then
-      root.Velocity = Vector3.zero
+      root.AssemblyLinearVelocity = Vector3.zero
    end
 end
 
@@ -291,7 +289,7 @@ local function getTargets()
             local root = char:FindFirstChild("HumanoidRootPart")
 
             if root then
-               table.insert(targets, char)
+               table.insert(targets, root)
             end
          end
       end
@@ -333,7 +331,7 @@ local function resetESP()
 
          if char then
 
-            local espObject = char:FindFirstChild("Vo1dESP")
+            local espObject = root:FindFirstChild("Vo1dESP")
 
             if espObject then
                espObject:Destroy()
