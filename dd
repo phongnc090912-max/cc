@@ -28,7 +28,6 @@ local Window = Library:CreateWindow({
 })
 
 local Tabs = {
-    Info = Window:AddTab("Info", "info"),
     Movement = Window:AddTab("Movement", "zap"),
     Fly = Window:AddTab("Fly", "rocket"),
     Visual = Window:AddTab("Visual", "eye"),
@@ -367,7 +366,7 @@ local function refreshPlayerESP()
     end
 end
 
-Tabs.Visual:AddToggle("ESPplayers", {
+Visual:AddToggle("ESPplayers", {
     Text = "ESP players",
     Default = false,
     Tooltip = "Show ESP players.",
@@ -651,7 +650,7 @@ end
 -- UI
 -- ============================================
 
-Tabs.Fly:AddToggle("Fly", {
+Fly:AddToggle("Fly", {
     Text = "Fly",
     Default = false,
     Tooltip = "Fly around using camera direction.",
@@ -847,7 +846,7 @@ end
 -- UI
 -- ============================================
 
-Tabs.Fly:AddToggle("Noclip", {
+Fly:AddToggle("Noclip", {
     Text = "Noclip",
     Default = false,
     Tooltip = "Walk through walls.",
@@ -942,16 +941,16 @@ local function toggleWalkSpeed(state)
     end
 end
 
-Tabs.Movement:AddToggle("WalkSpeed", {
+Movement:AddToggle("WalkSpeed", {
     Text = "WalkSpeed Hack",
     Default = false,
-    Tooltip = "Can change your speed."
+    Tooltip = "Can change your speed.",
     Callback = function(state)
         toggleWalkSpeed(state)
     end
 })
 
-Tabs.Movement:AddSlider("WalkSpeedValue", {
+Movement:AddSlider("WalkSpeedValue", {
     Text = "Speed",
     Default = 50,
     Min = 16,
@@ -1036,10 +1035,10 @@ local function disableJumpPower()
     end
 end
 
-Tabs.Movement:AddToggle("JumpPower", {
+Movement:AddToggle("JumpPower", {
     Text = "JumpPower Hack",
     Default = false,
-    Tooltip = "Can change your jump power."
+    Tooltip = "Can change your jump power.",
     Callback = function(state)
         jumpPowerEnabled = state
         if state then
@@ -1050,7 +1049,7 @@ Tabs.Movement:AddToggle("JumpPower", {
     end
 })
 
-Tabs.Movement:AddSlider("JumpPowerValue", {
+Movement:AddSlider("JumpPowerValue", {
     Text = "Jump Power",
     Default = 120,
     Min = 50,
