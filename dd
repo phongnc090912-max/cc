@@ -855,3 +855,208 @@ Tabs.Fly:AddToggle("Noclip", {
         toggleNoclip(state)
     end
 })
+
+-- ============================================
+-- SYSTEM VARIABLES
+-- ============================================
+
+local walkSpeedEnabled = false
+
+local defaultWalkSpeed = 16
+local customWalkSpeed = 50
+
+local walkSpeedConnection = nil
+
+-- ============================================
+-- ENABLE
+-- ============================================
+
+local function enableWalkSpeed()
+
+    if walkSpeedConnection then
+        walkSpeedConnection:Disconnect()
+    end
+
+    walkSpeedConnection =
+        RunService.Heartbeat:Connect(function()
+
+            local char =
+                LocalPlayer.Character
+
+            if not char then
+                return
+            end
+
+            local humanoid =
+                char:FindFirstChildOfClass("Humanoid")
+
+            if not humanoid then
+                return
+            end
+
+            humanoid.WalkSpeed =
+                customWalkSpeed
+        end)
+end
+
+-- ============================================
+-- DISABLE
+-- ============================================
+
+local function disableWalkSpeed()
+
+    if walkSpeedConnection then
+        walkSpeedConnection:Disconnect()
+        walkSpeedConnection = nil
+    end
+
+    local char =
+        LocalPlayer.Character
+
+    if not char then
+        return
+    end
+
+    local humanoid =
+        char:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        humanoid.WalkSpeed =
+            defaultWalkSpeed
+    end
+end
+
+-- ============================================
+-- TOGGLE
+-- ============================================
+
+local function toggleWalkSpeed(state)
+
+    walkSpeedEnabled = state
+
+    if state then
+        enableWalkSpeed()
+
+    else
+        disableWalkSpeed()
+    end
+end
+
+Tabs.Movement:AddToggle("WalkSpeed", {
+    Text = "WalkSpeed Hack",
+    Default = false,
+    Tooltip = "Can change your speed."
+    Callback = function(state)
+        toggleWalkSpeed(state)
+    end
+})
+
+Tabs.Movement:AddSlider("WalkSpeedValue", {
+    Text = "Speed",
+    Default = 50,
+    Min = 16,
+    Max = 300,
+    Rounding = 0,
+    Callback = function(value)
+        customWalkSpeed = value
+    end
+})
+
+-- ============================================
+-- VARIABLES
+-- ============================================
+
+local jumpPowerEnabled = false
+
+local defaultJumpPower = 50
+local customJumpPower = 120
+
+local jumpPowerConnection = nil
+
+-- ============================================
+-- ENABLE
+-- ============================================
+
+local function enableJumpPower()
+
+    if jumpPowerConnection then
+        jumpPowerConnection:Disconnect()
+    end
+
+    jumpPowerConnection =
+        RunService.Heartbeat:Connect(function()
+
+            local char =
+                LocalPlayer.Character
+
+            if not char then
+                return
+            end
+
+            local humanoid =
+                char:FindFirstChildOfClass("Humanoid")
+
+            if not humanoid then
+                return
+            end
+
+            humanoid.UseJumpPower = true
+            humanoid.JumpPower =
+                customJumpPower
+        end)
+end
+
+-- ============================================
+-- DISABLE
+-- ============================================
+
+local function disableJumpPower()
+
+    if jumpPowerConnection then
+        jumpPowerConnection:Disconnect()
+        jumpPowerConnection = nil
+    end
+
+    local char =
+        LocalPlayer.Character
+
+    if not char then
+        return
+    end
+
+    local humanoid =
+        char:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+
+        humanoid.UseJumpPower = true
+
+        humanoid.JumpPower =
+            defaultJumpPower
+    end
+end
+
+Tabs.Movement:AddToggle("JumpPower", {
+    Text = "JumpPower Hack",
+    Default = false,
+    Tooltip = "Can change your jump power."
+    Callback = function(state)
+        jumpPowerEnabled = state
+        if state then
+            enableJumpPower()
+        else
+            disableJumpPower()
+        end
+    end
+})
+
+Tabs.Movement:AddSlider("JumpPowerValue", {
+    Text = "Jump Power",
+    Default = 120,
+    Min = 50,
+    Max = 500,
+    Rounding = 0,
+    Callback = function(value)
+        customJumpPower = value
+    end
+})
