@@ -1061,3 +1061,74 @@ MovementBox:AddSlider("JumpPowerValue", {
         customJumpPower = value
     end
 })
+
+-- ============================================
+-- VARIABLES
+-- ============================================
+
+local infiniteJumpEnabled = false
+
+local infiniteJumpConnection = nil
+
+-- ============================================
+-- ENABLE
+-- ============================================
+
+local function enableInfiniteJump()
+
+    if infiniteJumpConnection then
+        infiniteJumpConnection:Disconnect()
+    end
+
+    infiniteJumpConnection =
+        UserInputService.JumpRequest:Connect(function()
+
+            if not infiniteJumpEnabled then
+                return
+            end
+
+            local char =
+                LocalPlayer.Character
+
+            if not char then
+                return
+            end
+
+            local humanoid =
+                char:FindFirstChildOfClass("Humanoid")
+
+            if not humanoid then
+                return
+            end
+
+            humanoid:ChangeState(
+                Enum.HumanoidStateType.Jumping
+            )
+        end)
+end
+
+-- ============================================
+-- DISABLE
+-- ============================================
+
+local function disableInfiniteJump()
+
+    if infiniteJumpConnection then
+        infiniteJumpConnection:Disconnect()
+        infiniteJumpConnection = nil
+    end
+end
+
+Tabs.Movement:AddToggle("InfiniteJump", {
+    Text = "Infinite Jump",
+    Default = false,
+    Tooltip = "Help you jump infinitely.",
+    Callback = function(state)
+        infiniteJumpEnabled = state
+        if state then
+            enableInfiniteJump()
+        else
+            disableInfiniteJump()
+        end
+    end
+})
