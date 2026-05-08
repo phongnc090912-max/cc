@@ -1119,7 +1119,7 @@ local function disableInfiniteJump()
     end
 end
 
-Tabs.Movement:AddToggle("InfiniteJump", {
+MovementBox:AddToggle("InfiniteJump", {
     Text = "Infinite Jump",
     Default = false,
     Tooltip = "Help you jump infinitely.",
