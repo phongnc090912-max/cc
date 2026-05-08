@@ -28,10 +28,10 @@ local Window = Library:CreateWindow({
 })
 
 local Tabs = {
-    Info = Window:AddTab("Info", "info")
-    Movement = Window:AddTab("Movement", "zap")
-    Fly = Window:AddTab("Fly", "rocket")
-    Visual = Window:AddTab("Visual", "eye")
+    Info = Window:AddTab("Info", "info"),
+    Movement = Window:AddTab("Movement", "zap"),
+    Fly = Window:AddTab("Fly", "rocket"),
+    Visual = Window:AddTab("Visual", "eye"),
     ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
 }
 
@@ -367,7 +367,7 @@ local function refreshPlayerESP()
     end
 end
 
-Visual:AddToggle("ESP players", {
+Tabs.Visual:AddToggle("ESPplayers", {
     Text = "ESP players",
     Default = false,
     Tooltip = "Show ESP players.",
@@ -651,7 +651,7 @@ end
 -- UI
 -- ============================================
 
-Fly:AddToggle("Fly", {
+Tabs.Fly:AddToggle("Fly", {
     Text = "Fly",
     Default = false,
     Tooltip = "Fly around using camera direction.",
@@ -668,10 +668,6 @@ local noclipEnabled = false
 
 local noclipConnection = nil
 local noclipCharacterConnection = nil
-
-local noclipCharacter = nil
-
-local noclipParts = {}
 
 -- ============================================
 -- GET CHARACTER
@@ -697,46 +693,28 @@ local function getCharacter()
 end
 
 -- ============================================
--- IS VALID PART
+-- SET NOCLIP
 -- ============================================
 
-local function isValidPart(obj)
-
-    if not obj then
-        return false
-    end
-
-    if not obj:IsA("BasePart") then
-        return false
-    end
-
-    if obj.Name == "HumanoidRootPart" then
-        return true
-    end
-
-    return true
-end
-
--- ============================================
--- SET COLLISION
--- ============================================
-
-local function setCharacterCollision(char, state)
-
-    if not char then
-        return
-    end
+local function applyNoclip(char)
 
     for _, obj in ipairs(char:GetDescendants()) do
 
-        if isValidPart(obj) then
+        if obj:IsA("BasePart") then
+
+            -- KHÔNG đụng Tool handle
+            if obj.Parent:IsA("Tool") then
+                continue
+            end
+
+            -- KHÔNG đụng accessories
+            if obj.Parent:IsA("Accessory") then
+                continue
+            end
 
             pcall(function()
 
-                obj.CanCollide = state
-
-                obj.CanTouch = state
-                obj.CanQuery = state
+                obj.CanCollide = false
 
             end)
         end
@@ -744,91 +722,30 @@ local function setCharacterCollision(char, state)
 end
 
 -- ============================================
--- CACHE PARTS
+-- RESTORE COLLISION
 -- ============================================
 
-local function cacheCharacterParts(char)
-
-    table.clear(noclipParts)
-
-    if not char then
-        return
-    end
+local function restoreCollision(char)
 
     for _, obj in ipairs(char:GetDescendants()) do
 
-        if isValidPart(obj) then
-            table.insert(noclipParts, obj)
+        if obj:IsA("BasePart") then
+
+            if obj.Parent:IsA("Tool") then
+                continue
+            end
+
+            if obj.Parent:IsA("Accessory") then
+                continue
+            end
+
+            pcall(function()
+
+                obj.CanCollide = true
+
+            end)
         end
     end
-end
-
--- ============================================
--- APPLY NOCLIP
--- ============================================
-
-local function applyNoclip()
-
-    if not noclipCharacter then
-        return
-    end
-
-    for _, part in ipairs(noclipParts) do
-
-        if part
-        and part.Parent
-        and part:IsDescendantOf(noclipCharacter) then
-
-            if part.CanCollide then
-
-                pcall(function()
-                    part.CanCollide = false
-                end)
-            end
-
-            if part.CanTouch then
-
-                pcall(function()
-                    part.CanTouch = false
-                end)
-            end
-
-            if part.CanQuery then
-
-                pcall(function()
-                    part.CanQuery = false
-                end)
-            end
-        end
-    end
-end
-
--- ============================================
--- CHARACTER SETUP
--- ============================================
-
-local function setupCharacter(char)
-
-    noclipCharacter = char
-
-    cacheCharacterParts(char)
-
-    setCharacterCollision(char, false)
-end
-
--- ============================================
--- CHARACTER ADDED
--- ============================================
-
-local function onCharacterAdded(char)
-
-    task.wait(1)
-
-    if not noclipEnabled then
-        return
-    end
-
-    setupCharacter(char)
 end
 
 -- ============================================
@@ -837,35 +754,6 @@ end
 
 local function enableNoclip()
 
-    local char =
-        getCharacter()
-
-    if not char then
-        return
-    end
-
-    setupCharacter(char)
-
-    -- ========================================
-    -- CHARACTER RESPAWN
-    -- ========================================
-
-    if noclipCharacterConnection then
-
-        noclipCharacterConnection:Disconnect()
-        noclipCharacterConnection = nil
-    end
-
-    noclipCharacterConnection =
-        LocalPlayer.CharacterAdded:Connect(function(newChar)
-
-            onCharacterAdded(newChar)
-        end)
-
-    -- ========================================
-    -- MAIN LOOP
-    -- ========================================
-
     if noclipConnection then
 
         noclipConnection:Disconnect()
@@ -873,11 +761,7 @@ local function enableNoclip()
     end
 
     noclipConnection =
-        RunService.Stepped:Connect(function()
-
-            if not noclipEnabled then
-                return
-            end
+        RunService.Heartbeat:Connect(function()
 
             local char =
                 getCharacter()
@@ -886,12 +770,31 @@ local function enableNoclip()
                 return
             end
 
-            if char ~= noclipCharacter then
+            applyNoclip(char)
+        end)
 
-                setupCharacter(char)
+    -- RESPAWN SUPPORT
+
+    if noclipCharacterConnection then
+
+        noclipCharacterConnection:Disconnect()
+        noclipCharacterConnection = nil
+    end
+
+    noclipCharacterConnection =
+        LocalPlayer.CharacterAdded:Connect(function()
+
+            task.wait(1)
+
+            if noclipEnabled then
+
+                local char =
+                    getCharacter()
+
+                if char then
+                    applyNoclip(char)
+                end
             end
-
-            applyNoclip()
         end)
 end
 
@@ -918,12 +821,8 @@ local function disableNoclip()
 
     if char then
 
-        setCharacterCollision(char, true)
+        restoreCollision(char)
     end
-
-    noclipCharacter = nil
-
-    table.clear(noclipParts)
 end
 
 -- ============================================
@@ -948,7 +847,7 @@ end
 -- UI
 -- ============================================
 
-Fly:AddToggle("Noclip", {
+Tabs.Fly:AddToggle("Noclip", {
     Text = "Noclip",
     Default = false,
     Tooltip = "Walk through walls.",
