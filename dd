@@ -34,6 +34,10 @@ local Tabs = {
     ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
 }
 
+local MovementBox = Tabs.Movement:AddLeftGroupbox("Movement")
+local FlyBox = Tabs.Fly:AddLeftGroupbox("Fly")
+local VisualBox = Tabs.Visual:AddLeftGroupbox("Visual")
+
 Library:Notify({ Title = "TOOL EXECUTED", Description = "Thank you for using my script", Time = 5 })
 
 -- ============================================
@@ -366,7 +370,7 @@ local function refreshPlayerESP()
     end
 end
 
-Visual:AddToggle("ESPplayers", {
+VisualBox:AddToggle("ESPplayers", {
     Text = "ESP players",
     Default = false,
     Tooltip = "Show ESP players.",
@@ -376,7 +380,7 @@ Visual:AddToggle("ESPplayers", {
     end
 })
 
-Visual:AddToggle("PlayerChams", {
+VisualBox:AddToggle("PlayerChams", {
     Text = "Player Chams",
     Default = false,
     Tooltip = "Show player chams.",
@@ -386,7 +390,7 @@ Visual:AddToggle("PlayerChams", {
     end
 })
 
-Visual:AddToggle("PlayerName", {
+VisualBox:AddToggle("PlayerName", {
     Text = "Player Name",
     Default = false,
     Tooltip = "Show players name.",
@@ -396,7 +400,7 @@ Visual:AddToggle("PlayerName", {
     end
 })
 
-Visual:AddToggle("PlayerHealth", {
+VisualBox:AddToggle("PlayerHealth", {
     Text = "Player Health",
     Default = false,
     Tooltip = "Show players health.",
@@ -406,7 +410,7 @@ Visual:AddToggle("PlayerHealth", {
     end
 })
 
-Visual:AddToggle("PlayerDistance", {
+VisualBox:AddToggle("PlayerDistance", {
     Text = "Player Distance",
     Default = false,
     Tooltip = "Show distance from you to players.",
@@ -650,7 +654,7 @@ end
 -- UI
 -- ============================================
 
-Fly:AddToggle("Fly", {
+FlyBox:AddToggle("Fly", {
     Text = "Fly",
     Default = false,
     Tooltip = "Fly around using camera direction.",
@@ -846,7 +850,7 @@ end
 -- UI
 -- ============================================
 
-Fly:AddToggle("Noclip", {
+FlyBox:AddToggle("Noclip", {
     Text = "Noclip",
     Default = false,
     Tooltip = "Walk through walls.",
@@ -941,7 +945,7 @@ local function toggleWalkSpeed(state)
     end
 end
 
-Movement:AddToggle("WalkSpeed", {
+MovementBox:AddToggle("WalkSpeed", {
     Text = "WalkSpeed Hack",
     Default = false,
     Tooltip = "Can change your speed.",
@@ -950,7 +954,7 @@ Movement:AddToggle("WalkSpeed", {
     end
 })
 
-Movement:AddSlider("WalkSpeedValue", {
+MovementBox:AddSlider("WalkSpeedValue", {
     Text = "Speed",
     Default = 50,
     Min = 16,
@@ -1035,7 +1039,7 @@ local function disableJumpPower()
     end
 end
 
-Movement:AddToggle("JumpPower", {
+MovementBox:AddToggle("JumpPower", {
     Text = "JumpPower Hack",
     Default = false,
     Tooltip = "Can change your jump power.",
@@ -1049,7 +1053,7 @@ Movement:AddToggle("JumpPower", {
     end
 })
 
-Movement:AddSlider("JumpPowerValue", {
+MovementBox:AddSlider("JumpPowerValue", {
     Text = "Jump Power",
     Default = 120,
     Min = 50,
