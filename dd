@@ -1,1 +1,958 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
+local TeleportService = game:GetService("TeleportService")
 
+local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
+local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
+local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
+local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
+
+Library.ToggleKeybind = Enum.KeyCode.F5
+
+local Options = Library.Options
+local Toggles = Library.Toggles
+
+Library.ForceCheckbox = false
+Library.ShowToggleFrameInKeybinds = true
+
+local Window = Library:CreateWindow({
+    Title = "Exploit tool",
+    Footer = "by_Vo1d",
+    NotifySide = "Right",
+    ShowCustomCursor = true,
+})
+
+local Tabs = {
+    Info = Window:AddTab("Info", "info")
+    Movement = Window:AddTab("Movement", "zap")
+    Fly = Window:AddTab("Fly", "rocket")
+    Visual = Window:AddTab("Visual", "eye")
+    ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
+}
+
+Library:Notify({ Title = "TOOL EXECUTED", Description = "Thank you for using my script", Time = 5 })
+
+-- ============================================
+-- PLAYER ESP VARIABLES
+-- ============================================
+
+local playerESPVars = {
+    ESP = false,
+    Chams = false,
+    Name = false,
+    Distance = false,
+    Health = false,
+}
+
+local playerESPInstances = {}
+
+-- ============================================
+-- COLORS
+-- ============================================
+
+local function getDistanceColor(dist)
+    if dist > 250 then
+        return Color3.fromRGB(255,80,80)
+
+    elseif dist > 150 then
+        return Color3.fromRGB(255,180,80)
+
+    elseif dist > 75 then
+        return Color3.fromRGB(255,255,80)
+
+    else
+        return Color3.fromRGB(220,220,220)
+    end
+end
+
+local function getHealthColor(percent)
+    if percent > 0.6 then
+        return Color3.fromRGB(80,255,80)
+
+    elseif percent > 0.3 then
+        return Color3.fromRGB(255,220,50)
+
+    else
+        return Color3.fromRGB(255,60,60)
+    end
+end
+
+-- ============================================
+-- REMOVE ESP
+-- ============================================
+
+local function removePlayerESP(player)
+
+    local esp = playerESPInstances[player]
+
+    if esp then
+
+        if esp.Highlight then
+            esp.Highlight:Destroy()
+        end
+
+        if esp.Billboard then
+            esp.Billboard:Destroy()
+        end
+
+        if esp.Connection then
+            esp.Connection:Disconnect()
+        end
+
+        playerESPInstances[player] = nil
+    end
+end
+
+-- ============================================
+-- CREATE ESP
+-- ============================================
+
+local function createPlayerESP(player)
+
+    if player == LocalPlayer then
+        return
+    end
+
+    if playerESPInstances[player] then
+        return
+    end
+
+    local char = player.Character
+
+    if not char then
+        return
+    end
+
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+
+    if not root or not humanoid then
+        return
+    end
+
+    local espTable = {}
+
+    -- ========================================
+    -- HIGHLIGHT
+    -- ========================================
+
+    if playerESPVars.Chams then
+
+        local highlight = Instance.new("Highlight")
+
+        highlight.Name = "PlayerESP"
+        highlight.Adornee = char
+
+        highlight.FillColor = Color3.fromRGB(0,100,255)
+        highlight.FillTransparency = 0.5
+
+        highlight.OutlineColor = Color3.fromRGB(255,255,255)
+        highlight.OutlineTransparency = 0
+
+        highlight.Parent = char
+
+        espTable.Highlight = highlight
+    end
+
+    -- ========================================
+    -- BILLBOARD
+    -- ========================================
+
+    local billboard
+    local nameLabel
+    local healthLabel
+    local distLabel
+
+    if playerESPVars.Name
+    or playerESPVars.Health
+    or playerESPVars.Distance then
+
+        billboard = Instance.new("BillboardGui")
+
+        billboard.Name = "PlayerESP_UI"
+        billboard.Adornee = root
+        billboard.Size = UDim2.new(0,220,0,70)
+        billboard.StudsOffset = Vector3.new(0,3,0)
+        billboard.AlwaysOnTop = true
+        billboard.Parent = char
+
+        local frame = Instance.new("Frame")
+
+        frame.Size = UDim2.new(1,0,1,0)
+        frame.BackgroundTransparency = 1
+        frame.Parent = billboard
+
+        -- NAME
+
+        nameLabel = Instance.new("TextLabel")
+
+        nameLabel.Size = UDim2.new(1,0,0.33,0)
+        nameLabel.Position = UDim2.new(0,0,0,0)
+
+        nameLabel.BackgroundTransparency = 1
+
+        nameLabel.Text = player.Name
+        nameLabel.TextColor3 = Color3.fromRGB(150,200,255)
+
+        nameLabel.TextStrokeTransparency = 0
+        nameLabel.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.TextSize = 14
+
+        nameLabel.Visible = playerESPVars.Name
+
+        nameLabel.Parent = frame
+
+        -- HEALTH
+
+        healthLabel = Instance.new("TextLabel")
+
+        healthLabel.Size = UDim2.new(1,0,0.33,0)
+        healthLabel.Position = UDim2.new(0,0,0.33,0)
+
+        healthLabel.BackgroundTransparency = 1
+
+        healthLabel.Text = "100 HP"
+
+        healthLabel.TextStrokeTransparency = 0
+        healthLabel.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+
+        healthLabel.Font = Enum.Font.GothamBold
+        healthLabel.TextSize = 13
+
+        healthLabel.Visible = playerESPVars.Health
+
+        healthLabel.Parent = frame
+
+        -- DISTANCE
+
+        distLabel = Instance.new("TextLabel")
+
+        distLabel.Size = UDim2.new(1,0,0.33,0)
+        distLabel.Position = UDim2.new(0,0,0.66,0)
+
+        distLabel.BackgroundTransparency = 1
+
+        distLabel.Text = "0m"
+
+        distLabel.TextStrokeTransparency = 0
+        distLabel.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+
+        distLabel.Font = Enum.Font.GothamBold
+        distLabel.TextSize = 12
+
+        distLabel.Visible = playerESPVars.Distance
+
+        distLabel.Parent = frame
+
+        espTable.Billboard = billboard
+    end
+
+    -- ========================================
+    -- UPDATE LOOP
+    -- ========================================
+
+    local connection
+
+    connection = RunService.Heartbeat:Connect(function()
+
+        if not player.Parent then
+            removePlayerESP(player)
+            connection:Disconnect()
+            return
+        end
+
+        local char = player.Character
+
+        if not char then
+            return
+        end
+
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+
+        local myChar = LocalPlayer.Character
+        local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+
+        if not root or not humanoid or not myRoot then
+            return
+        end
+
+        local distance =
+            (myRoot.Position - root.Position).Magnitude
+
+        -- HEALTH %
+
+        local healthPercent =
+            humanoid.Health / humanoid.MaxHealth
+
+        local healthColor =
+            getHealthColor(healthPercent)
+
+        -- UPDATE HEALTH COLOR
+
+        if espTable.Highlight then
+
+            espTable.Highlight.FillColor =
+                healthColor
+        end
+
+        -- UPDATE TEXTS
+
+        if nameLabel then
+            nameLabel.Text = player.Name
+        end
+
+        if healthLabel then
+
+            healthLabel.Text =
+                math.floor(humanoid.Health)
+                .. " HP"
+
+            healthLabel.TextColor3 =
+                healthColor
+        end
+
+        if distLabel then
+
+            distLabel.Text =
+                math.floor(distance)
+                .. "m"
+
+            distLabel.TextColor3 =
+                getDistanceColor(distance)
+        end
+    end)
+
+    espTable.Connection = connection
+
+    playerESPInstances[player] = espTable
+end
+
+-- ============================================
+-- REFRESH ESP
+-- ============================================
+
+local function refreshPlayerESP()
+
+    for player, _ in pairs(playerESPInstances) do
+        removePlayerESP(player)
+    end
+
+    if not playerESPVars.ESP then
+        return
+    end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+
+        if player ~= LocalPlayer then
+
+            createPlayerESP(player)
+
+            player.CharacterAdded:Connect(function()
+
+                task.wait(1)
+
+                if playerESPVars.ESP then
+                    createPlayerESP(player)
+                end
+            end)
+        end
+    end
+end
+
+Visual:AddToggle("ESP players", {
+    Text = "ESP players",
+    Default = false,
+    Tooltip = "Show ESP players.",
+    Callback = function(s)
+        playerESPVars.ESP = s
+        refreshPlayerESP()
+    end
+})
+
+Visual:AddToggle("PlayerChams", {
+    Text = "Player Chams",
+    Default = false,
+    Tooltip = "Show player chams.",
+    Callback = function(state)
+        playerESPVars.Chams = state
+        refreshPlayerESP()
+    end
+})
+
+Visual:AddToggle("PlayerName", {
+    Text = "Player Name",
+    Default = false,
+    Tooltip = "Show players name.",
+    Callback = function(state)
+        playerESPVars.Name = state
+        refreshPlayerESP()
+    end
+})
+
+Visual:AddToggle("PlayerHealth", {
+    Text = "Player Health",
+    Default = false,
+    Tooltip = "Show players health.",
+    Callback = function(state)
+        playerESPVars.Health = state
+        refreshPlayerESP()
+    end
+})
+
+Visual:AddToggle("PlayerDistance", {
+    Text = "Player Distance",
+    Default = false,
+    Tooltip = "Show distance from you to players.",
+    Callback = function(state)
+        playerESPVars.Distance = state
+        refreshPlayerESP()
+    end
+})
+
+-- ============================================
+-- SYSTEM FLY
+-- ============================================
+
+-- ============================================
+-- SYSTEM VARIABLES
+-- ============================================
+
+local flyEnabled = false
+local flyConnection = nil
+
+local flySpeed = 60
+
+local flyKeys = {
+    W = false,
+    A = false,
+    S = false,
+    D = false,
+    Space = false,
+    Shift = false,
+}
+
+-- ============================================
+-- INPUT SYSTEM
+-- ============================================
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+
+    if gameProcessed then
+        return
+    end
+
+    local key = input.KeyCode
+
+    if key == Enum.KeyCode.W then
+        flyKeys.W = true
+
+    elseif key == Enum.KeyCode.A then
+        flyKeys.A = true
+
+    elseif key == Enum.KeyCode.S then
+        flyKeys.S = true
+
+    elseif key == Enum.KeyCode.D then
+        flyKeys.D = true
+
+    elseif key == Enum.KeyCode.Space then
+        flyKeys.Space = true
+
+    elseif key == Enum.KeyCode.LeftShift then
+        flyKeys.Shift = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+
+    local key = input.KeyCode
+
+    if key == Enum.KeyCode.W then
+        flyKeys.W = false
+
+    elseif key == Enum.KeyCode.A then
+        flyKeys.A = false
+
+    elseif key == Enum.KeyCode.S then
+        flyKeys.S = false
+
+    elseif key == Enum.KeyCode.D then
+        flyKeys.D = false
+
+    elseif key == Enum.KeyCode.Space then
+        flyKeys.Space = false
+
+    elseif key == Enum.KeyCode.LeftShift then
+        flyKeys.Shift = false
+    end
+end)
+
+-- ============================================
+-- ENABLE
+-- ============================================
+
+local function enableFly()
+
+    local char = LocalPlayer.Character
+
+    if not char then
+        return
+    end
+
+    local root =
+        char:FindFirstChild("HumanoidRootPart")
+
+    local humanoid =
+        char:FindFirstChildOfClass("Humanoid")
+
+    if not root or not humanoid then
+        return
+    end
+
+    if flyConnection then
+        flyConnection:Disconnect()
+    end
+
+    humanoid.PlatformStand = true
+
+    flyConnection =
+        RunService.Heartbeat:Connect(function(deltaTime)
+
+            if not flyEnabled then
+                return
+            end
+
+            local cam =
+                Workspace.CurrentCamera
+
+            local moveDirection =
+                Vector3.zero
+
+            local forward =
+                cam.CFrame.LookVector
+
+            local right =
+                cam.CFrame.RightVector
+
+            -- ====================================
+            -- WASD
+            -- ====================================
+
+            if flyKeys.W then
+                moveDirection += forward
+            end
+
+            if flyKeys.S then
+                moveDirection -= forward
+            end
+
+            if flyKeys.D then
+                moveDirection += right
+            end
+
+            if flyKeys.A then
+                moveDirection -= right
+            end
+
+            -- ====================================
+            -- UP / DOWN
+            -- ====================================
+
+            if flyKeys.Space then
+                moveDirection += Vector3.new(0,1,0)
+            end
+
+            if flyKeys.Shift then
+                moveDirection -= Vector3.new(0,1,0)
+            end
+
+            -- ====================================
+            -- NORMALIZE
+            -- ====================================
+
+            if moveDirection.Magnitude > 0 then
+
+                moveDirection =
+                    moveDirection.Unit
+
+                root.CFrame +=
+                    moveDirection
+                    * flySpeed
+                    * deltaTime
+            end
+
+            -- ====================================
+            -- STOP VELOCITY
+            -- ====================================
+
+            root.AssemblyLinearVelocity =
+                Vector3.zero
+        end)
+end
+
+-- ============================================
+-- DISABLE
+-- ============================================
+
+local function disableFly()
+
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+
+    local char = LocalPlayer.Character
+
+    if not char then
+        return
+    end
+
+    local humanoid =
+        char:FindFirstChildOfClass("Humanoid")
+
+    local root =
+        char:FindFirstChild("HumanoidRootPart")
+
+    if humanoid then
+        humanoid.PlatformStand = false
+    end
+
+    if root then
+        root.AssemblyLinearVelocity =
+            Vector3.zero
+    end
+end
+
+-- ============================================
+-- TOGGLE
+-- ============================================
+
+local function toggleFly(state)
+
+    flyEnabled = state
+
+    if state then
+        enableFly()
+
+    else
+        disableFly()
+    end
+end
+
+-- ============================================
+-- UI
+-- ============================================
+
+Fly:AddToggle("Fly", {
+    Text = "Fly",
+    Default = false,
+    Tooltip = "Fly around using camera direction.",
+    Callback = function(state)
+        toggleFly(state)
+    end
+})
+
+-- ============================================
+-- SYSTEM VARIABLES
+-- ============================================
+
+local noclipEnabled = false
+
+local noclipConnection = nil
+local noclipCharacterConnection = nil
+
+local noclipCharacter = nil
+
+local noclipParts = {}
+
+-- ============================================
+-- GET CHARACTER
+-- ============================================
+
+local function getCharacter()
+
+    local char =
+        LocalPlayer.Character
+
+    if not char then
+        return nil
+    end
+
+    local humanoid =
+        char:FindFirstChildOfClass("Humanoid")
+
+    if not humanoid then
+        return nil
+    end
+
+    return char
+end
+
+-- ============================================
+-- IS VALID PART
+-- ============================================
+
+local function isValidPart(obj)
+
+    if not obj then
+        return false
+    end
+
+    if not obj:IsA("BasePart") then
+        return false
+    end
+
+    if obj.Name == "HumanoidRootPart" then
+        return true
+    end
+
+    return true
+end
+
+-- ============================================
+-- SET COLLISION
+-- ============================================
+
+local function setCharacterCollision(char, state)
+
+    if not char then
+        return
+    end
+
+    for _, obj in ipairs(char:GetDescendants()) do
+
+        if isValidPart(obj) then
+
+            pcall(function()
+
+                obj.CanCollide = state
+
+                obj.CanTouch = state
+                obj.CanQuery = state
+
+            end)
+        end
+    end
+end
+
+-- ============================================
+-- CACHE PARTS
+-- ============================================
+
+local function cacheCharacterParts(char)
+
+    table.clear(noclipParts)
+
+    if not char then
+        return
+    end
+
+    for _, obj in ipairs(char:GetDescendants()) do
+
+        if isValidPart(obj) then
+            table.insert(noclipParts, obj)
+        end
+    end
+end
+
+-- ============================================
+-- APPLY NOCLIP
+-- ============================================
+
+local function applyNoclip()
+
+    if not noclipCharacter then
+        return
+    end
+
+    for _, part in ipairs(noclipParts) do
+
+        if part
+        and part.Parent
+        and part:IsDescendantOf(noclipCharacter) then
+
+            if part.CanCollide then
+
+                pcall(function()
+                    part.CanCollide = false
+                end)
+            end
+
+            if part.CanTouch then
+
+                pcall(function()
+                    part.CanTouch = false
+                end)
+            end
+
+            if part.CanQuery then
+
+                pcall(function()
+                    part.CanQuery = false
+                end)
+            end
+        end
+    end
+end
+
+-- ============================================
+-- CHARACTER SETUP
+-- ============================================
+
+local function setupCharacter(char)
+
+    noclipCharacter = char
+
+    cacheCharacterParts(char)
+
+    setCharacterCollision(char, false)
+end
+
+-- ============================================
+-- CHARACTER ADDED
+-- ============================================
+
+local function onCharacterAdded(char)
+
+    task.wait(1)
+
+    if not noclipEnabled then
+        return
+    end
+
+    setupCharacter(char)
+end
+
+-- ============================================
+-- ENABLE
+-- ============================================
+
+local function enableNoclip()
+
+    local char =
+        getCharacter()
+
+    if not char then
+        return
+    end
+
+    setupCharacter(char)
+
+    -- ========================================
+    -- CHARACTER RESPAWN
+    -- ========================================
+
+    if noclipCharacterConnection then
+
+        noclipCharacterConnection:Disconnect()
+        noclipCharacterConnection = nil
+    end
+
+    noclipCharacterConnection =
+        LocalPlayer.CharacterAdded:Connect(function(newChar)
+
+            onCharacterAdded(newChar)
+        end)
+
+    -- ========================================
+    -- MAIN LOOP
+    -- ========================================
+
+    if noclipConnection then
+
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+
+    noclipConnection =
+        RunService.Stepped:Connect(function()
+
+            if not noclipEnabled then
+                return
+            end
+
+            local char =
+                getCharacter()
+
+            if not char then
+                return
+            end
+
+            if char ~= noclipCharacter then
+
+                setupCharacter(char)
+            end
+
+            applyNoclip()
+        end)
+end
+
+-- ============================================
+-- DISABLE
+-- ============================================
+
+local function disableNoclip()
+
+    if noclipConnection then
+
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+
+    if noclipCharacterConnection then
+
+        noclipCharacterConnection:Disconnect()
+        noclipCharacterConnection = nil
+    end
+
+    local char =
+        getCharacter()
+
+    if char then
+
+        setCharacterCollision(char, true)
+    end
+
+    noclipCharacter = nil
+
+    table.clear(noclipParts)
+end
+
+-- ============================================
+-- TOGGLE
+-- ============================================
+
+local function toggleNoclip(state)
+
+    noclipEnabled = state
+
+    if state then
+
+        enableNoclip()
+
+    else
+
+        disableNoclip()
+    end
+end
+
+-- ============================================
+-- UI
+-- ============================================
+
+Fly:AddToggle("Noclip", {
+    Text = "Noclip",
+    Default = false,
+    Tooltip = "Walk through walls.",
+    Callback = function(state)
+        toggleNoclip(state)
+    end
+})
