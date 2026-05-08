@@ -12,8 +12,6 @@ local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
 local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
 
-Library.ToggleKeybind = Enum.KeyCode.F5
-
 local Options = Library.Options
 local Toggles = Library.Toggles
 
