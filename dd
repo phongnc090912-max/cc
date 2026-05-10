@@ -33,9 +33,11 @@ local Tabs = {
     ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
 }
 
-local MovementBox = Tabs.Movement:AddLeftGroupbox("Movement")
-local FlyBox = Tabs.Fly:AddLeftGroupbox("Fly")
-local VisualBox = Tabs.Visual:AddLeftGroupbox("Visual")
+local SpeedBox = Tabs.Movement:AddLeftGroupbox("Speed", "zap")
+local JumpBox = Tabs.Movement:AddRightGroupBox("Jump", "plane")
+local NoclipBox = Tabs.Fly:AddRightGroupBox("Noclip", "flask-conical")
+local FlyBox = Tabs.Fly:AddLeftGroupbox("Fly", "rocket")
+local VisualBox = Tabs.Visual:AddLeftGroupbox("Visual", "search")
 
 Library:Notify({ Title = "TOOL EXECUTED", Description = "Thank you for using my script", Time = 5 })
 
@@ -662,6 +664,17 @@ FlyBox:AddToggle("Fly", {
     end
 })
 
+FlyBox:AddSlider("FlySpeed", {
+    Text = "Fly speed",
+    Defualt = 60,
+    Min = 20,
+    Max = 360,
+    Rounding = 0,
+    Callback = function(v)
+        flySpeed = v
+    end
+})
+
 -- ============================================
 -- SYSTEM VARIABLES
 -- ============================================
@@ -849,7 +862,7 @@ end
 -- UI
 -- ============================================
 
-FlyBox:AddToggle("Noclip", {
+NoclipBox:AddToggle("Noclip", {
     Text = "Noclip",
     Default = false,
     Tooltip = "Walk through walls.",
@@ -944,7 +957,7 @@ local function toggleWalkSpeed(state)
     end
 end
 
-MovementBox:AddToggle("WalkSpeed", {
+SpeedBox:AddToggle("WalkSpeed", {
     Text = "WalkSpeed Hack",
     Default = false,
     Tooltip = "Can change your speed.",
@@ -953,7 +966,7 @@ MovementBox:AddToggle("WalkSpeed", {
     end
 })
 
-MovementBox:AddSlider("WalkSpeedValue", {
+SpeedBox:AddSlider("WalkSpeedValue", {
     Text = "Speed",
     Default = 50,
     Min = 16,
@@ -1038,7 +1051,7 @@ local function disableJumpPower()
     end
 end
 
-MovementBox:AddToggle("JumpPower", {
+JumpBox:AddToggle("JumpPower", {
     Text = "JumpPower Hack",
     Default = false,
     Tooltip = "Can change your jump power.",
@@ -1052,7 +1065,7 @@ MovementBox:AddToggle("JumpPower", {
     end
 })
 
-MovementBox:AddSlider("JumpPowerValue", {
+JumpBox:AddSlider("JumpPowerValue", {
     Text = "Jump Power",
     Default = 120,
     Min = 50,
@@ -1120,7 +1133,7 @@ local function disableInfiniteJump()
     end
 end
 
-MovementBox:AddToggle("InfiniteJump", {
+JumpBox:AddToggle("InfiniteJump", {
     Text = "Infinite Jump",
     Default = false,
     Tooltip = "Help you jump infinitely.",
