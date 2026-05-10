@@ -33,11 +33,11 @@ local Tabs = {
     ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
 }
 
-local SpeedBox = Tabs.Movement:AddLeftGroupbox("Speed", "zap")
-local JumpBox = Tabs.Movement:AddRightGroupBox("Jump", "plane")
-local NoclipBox = Tabs.Fly:AddRightGroupBox("Noclip", "flask-conical")
-local FlyBox = Tabs.Fly:AddLeftGroupbox("Fly", "rocket")
-local VisualBox = Tabs.Visual:AddLeftGroupbox("Visual", "search")
+local SpeedBox = Tabs.Movement:AddLeftGroupBox("Speed")
+local JumpBox = Tabs.Movement:AddRightGroupBox("Jump")
+local NoclipBox = Tabs.Fly:AddRightGroupBox("Noclip")
+local FlyBox = Tabs.Fly:AddLeftGroupBox("Fly")
+local VisualBox = Tabs.Visual:AddLeftGroupBox("Visual")
 
 Library:Notify({ Title = "TOOL EXECUTED", Description = "Thank you for using my script", Time = 5 })
 
