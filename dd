@@ -41,30 +41,11 @@ local Tabs = {
 -- GROUPBOXES
 -- ============================================
 
-local SpeedBox =
-    Tabs.Movement:AddLeftGroupbox(
-        "Speed"
-    )
-
-local JumpBox =
-    Tabs.Movement:AddRightGroupbox(
-        "Jump"
-    )
-
-local FlyBox =
-    Tabs.Fly:AddLeftGroupbox(
-        "Fly"
-    )
-
-local NoclipBox =
-    Tabs.Fly:AddRightGroupbox(
-        "Noclip"
-    )
-
-local VisualBox =
-    Tabs.Visual:AddLeftGroupbox(
-        "Visual"
-    )
+local SpeedBox =Tabs.Movement:AddLeftGroupbox("Speed")
+local JumpBox = Tabs.Movement:AddRightGroupbox("Jump")
+local FlyBox = Tabs.Fly:AddLeftGroupbox("Fly")
+local NoclipBox = Tabs.Fly:AddRightGroupbox("Noclip")
+local VisualBox = Tabs.Visual:AddLeftGroupbox("Visual")
 
 -- ============================================
 -- NOTIFY
@@ -699,6 +680,17 @@ FlyBox:AddToggle("Fly", {
     end
 })
 
+FlyBox:AddSlider("FlySpeed", {
+    Text = "Fly Speed",
+    Default = 60,
+    Min = 10,
+    Max = 300,
+    Rounding = 0,
+    Callback = function(value)
+        flySpeed = value
+    end
+})
+
 -- ============================================
 -- SYSTEM VARIABLES
 -- ============================================
@@ -1175,21 +1167,15 @@ JumpBox:AddToggle("InfiniteJump", {
 -- ORBIT UI BOX
 -- ============================================
 
-local OrbitBox =
-    Tabs.Fly:AddLeftGroupbox(
-        "Orbit"
-    )
+local OrbitBox = Tabs.Fly:AddLeftGroupbox("Orbit")
 
 -- ============================================
 -- ORBIT VARIABLES
 -- ============================================
 
 local orbitEnabled = false
-
 local orbitConnection = nil
-
 local orbitTarget = nil
-
 local orbitSpeed = 5
 
 -- ============================================
@@ -1197,18 +1183,14 @@ local orbitSpeed = 5
 -- ============================================
 
 local function getRoot(player)
-
     if not player then
         return nil
     end
-
     local char =
         player.Character
-
     if not char then
         return nil
     end
-
     return char:FindFirstChild(
         "HumanoidRootPart"
     )
@@ -1311,7 +1293,7 @@ local function enableOrbit()
             -- CLOSE ORBIT
             -- ====================================
 
-            local radius = 2
+            local radius = 5
 
             local t =
                 tick()
