@@ -26,6 +26,10 @@ local Window = Library:CreateWindow({
     ShowCustomCursor = true,
 })
 
+-- ============================================
+-- TABS
+-- ============================================
+
 local Tabs = {
     Movement = Window:AddTab("Movement", "zap"),
     Fly = Window:AddTab("Fly", "rocket"),
@@ -33,13 +37,44 @@ local Tabs = {
     ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
 }
 
-local SpeedBox = Tabs.Movement:AddLeftGroupBox("Speed")
-local JumpBox = Tabs.Movement:AddRightGroupBox("Jump")
-local NoclipBox = Tabs.Fly:AddRightGroupBox("Noclip")
-local FlyBox = Tabs.Fly:AddLeftGroupBox("Fly")
-local VisualBox = Tabs.Visual:AddLeftGroupBox("Visual")
+-- ============================================
+-- GROUPBOXES
+-- ============================================
 
-Library:Notify({ Title = "TOOL EXECUTED", Description = "Thank you for using my script", Time = 5 })
+local SpeedBox =
+    Tabs.Movement:AddLeftGroupbox(
+        "Speed"
+    )
+
+local JumpBox =
+    Tabs.Movement:AddRightGroupbox(
+        "Jump"
+    )
+
+local FlyBox =
+    Tabs.Fly:AddLeftGroupbox(
+        "Fly"
+    )
+
+local NoclipBox =
+    Tabs.Fly:AddRightGroupbox(
+        "Noclip"
+    )
+
+local VisualBox =
+    Tabs.Visual:AddLeftGroupbox(
+        "Visual"
+    )
+
+-- ============================================
+-- NOTIFY
+-- ============================================
+
+Library:Notify({
+    Title = "TOOL EXECUTED",
+    Description = "Thank you for using my script",
+    Time = 5
+})
 
 -- ============================================
 -- PLAYER ESP VARIABLES
@@ -661,17 +696,6 @@ FlyBox:AddToggle("Fly", {
     Tooltip = "Fly around using camera direction.",
     Callback = function(state)
         toggleFly(state)
-    end
-})
-
-FlyBox:AddSlider("FlySpeed", {
-    Text = "Fly speed",
-    Defualt = 60,
-    Min = 20,
-    Max = 360,
-    Rounding = 0,
-    Callback = function(v)
-        flySpeed = v
     end
 })
 
