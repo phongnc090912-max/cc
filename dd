@@ -1311,7 +1311,7 @@ local function enableOrbit()
             -- CLOSE ORBIT
             -- ====================================
 
-            local radius = 2
+            local radius = 4
 
             local t =
                 tick()
@@ -1333,7 +1333,7 @@ local function enableOrbit()
                 targetRoot.Position
                 + Vector3.new(
                     x,
-                    1.5,
+                    1,
                     z
                 )
 
@@ -1346,7 +1346,6 @@ local function enableOrbit()
                     position,
                     targetRoot.Position
                 )
-
             myRoot.AssemblyLinearVelocity =
                 Vector3.zero
         end)
@@ -1357,11 +1356,8 @@ end
 -- ============================================
 
 local function disableOrbit()
-
     if orbitConnection then
-
         orbitConnection:Disconnect()
-
         orbitConnection = nil
     end
 end
@@ -1371,15 +1367,10 @@ end
 -- ============================================
 
 local function toggleOrbit(state)
-
     orbitEnabled = state
-
     if state then
-
         enableOrbit()
-
     else
-
         disableOrbit()
     end
 end
@@ -1392,13 +1383,9 @@ OrbitBox:AddDropdown(
     "OrbitTarget",
 {
     Text = "Target",
-
     Values = orbitPlayerList,
-
     Default = 1,
-
     Callback = function(value)
-
         orbitTarget = value
     end
 })
@@ -1407,13 +1394,9 @@ OrbitBox:AddToggle(
     "OrbitToggle",
 {
     Text = "Orbit",
-
     Default = false,
-
-    Tooltip = "Orbit around target.",
-
+    Tooltip = "Orbit around player.",
     Callback = function(state)
-
         toggleOrbit(state)
     end
 })
@@ -1422,16 +1405,11 @@ OrbitBox:AddSlider(
     "OrbitSpeed",
 {
     Text = "Orbit Speed",
-
     Default = 5,
-
     Min = 1,
     Max = 50,
-
     Rounding = 0,
-
     Callback = function(value)
-
         orbitSpeed = value
     end
 })
