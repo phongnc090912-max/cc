@@ -36,7 +36,7 @@ local Tabs = {
     Movement = Window:AddTab("Movement", "zap"),
     Fly = Window:AddTab("Fly", "rocket"),
     Visual = Window:AddTab("Visual", "eye"),
-    Troll = Window:AddTab("Trolling", ""),
+    Troll = Window:AddTab("Trolling", "terminal"),
     ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
 }
 
