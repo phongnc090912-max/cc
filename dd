@@ -1304,9 +1304,6 @@ local HackerImage = "rbxassetid://7139481935"
 local Original = {
     Brightness = Lighting.Brightness,
     ClockTime = Lighting.ClockTime,
-    FogEnd = Lighting.FogEnd,
-    FogStart = Lighting.FogStart,
-    FogColor = Lighting.FogColor,
     Ambient = Lighting.Ambient,
     OutdoorAmbient = Lighting.OutdoorAmbient
 }
@@ -1319,26 +1316,100 @@ if not Sky then
     Sky.Parent = Lighting
 end
 
---// ATMOSPHERE
-local Atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
-
-if not Atmosphere then
-    Atmosphere = Instance.new("Atmosphere")
-    Atmosphere.Parent = Lighting
-end
-
 --// CACHE
 local ModifiedTextures = {}
+
+--// GLITCH GUI
+local HorrorGui = nil
 
 --// FUNCTIONS
 
 local function applySkybox(id)
+
     Sky.SkyboxBk = id
     Sky.SkyboxDn = id
     Sky.SkyboxFt = id
     Sky.SkyboxLf = id
     Sky.SkyboxRt = id
     Sky.SkyboxUp = id
+
+end
+
+local function createHorrorMessage()
+
+    if HorrorGui then
+        HorrorGui:Destroy()
+    end
+
+    HorrorGui = Instance.new("ScreenGui")
+    HorrorGui.Name = "HORROR_GUI"
+    HorrorGui.IgnoreGuiInset = true
+    HorrorGui.ResetOnSpawn = false
+    HorrorGui.Parent = game.Players.LocalPlayer.PlayerGui
+
+    local Text = Instance.new("TextLabel")
+    Text.Size = UDim2.new(1,0,1,0)
+    Text.BackgroundTransparency = 1
+    Text.Text = "SYSTEM 67 ERROR-ERROR 367"
+    Text.Font = Enum.Font.Arcade
+    Text.TextScaled = true
+    Text.TextColor3 = Color3.fromRGB(255,0,0)
+    Text.TextStrokeTransparency = 0
+    Text.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+    Text.Parent = HorrorGui
+
+    -- GLITCH LOOP
+    task.spawn(function()
+
+        while HorrorGui and HorrorGui.Parent and Enabled do
+
+            Text.Position = UDim2.new(
+                0,
+                math.random(-25,25),
+                0,
+                math.random(-25,25)
+            )
+
+            Text.Rotation = math.random(-4,4)
+
+            Text.TextTransparency = math.random(0,30)/100
+
+            Text.TextColor3 = Color3.fromRGB(
+                math.random(180,255),
+                0,
+                0
+            )
+
+            task.wait(0.03)
+
+        end
+
+    end)
+
+    -- AUTO REMOVE
+    task.delay(3,function()
+
+        if HorrorGui then
+
+            TweenService:Create(
+                Text,
+                TweenInfo.new(1),
+                {
+                    TextTransparency = 1
+                }
+            ):Play()
+
+            task.wait(1)
+
+            if HorrorGui then
+                HorrorGui:Destroy()
+                HorrorGui = nil
+            end
+
+        end
+
+    end)
+
 end
 
 local function infectMap(enable)
@@ -1350,34 +1421,45 @@ local function infectMap(enable)
             if v:IsA("BasePart") then
 
                 if not ModifiedTextures[v] then
+
                     ModifiedTextures[v] = {
                         Material = v.Material,
                         Color = v.Color
                     }
+
                 end
 
-                -- MAP COLOR
+                -- DARK RED
                 v.Material = Enum.Material.SmoothPlastic
-                v.Color = Color3.fromRGB(25,0,0)
+                v.Color = Color3.fromRGB(20,0,0)
 
                 -- REMOVE OLD
-                local old = v:FindFirstChild("HACKER_TEXTURE")
-
-                if old then
-                    old:Destroy()
+                for _,x in pairs(v:GetChildren()) do
+                    if x.Name == "HACKER_TEXTURE" then
+                        x:Destroy()
+                    end
                 end
 
-                -- TOP TEXTURE
-                local tex = Instance.new("Texture")
-                tex.Name = "HACKER_TEXTURE"
-                tex.Texture = HackerImage
-                tex.Face = Enum.NormalId.Top
-                tex.StudsPerTileU = 10
-                tex.StudsPerTileV = 10
-                tex.Transparency = 0.15
-                tex.Parent = v
+                -- ALL SIDES
+                for _,face in pairs(Enum.NormalId:GetEnumItems()) do
+
+                    local tex = Instance.new("Texture")
+
+                    tex.Name = "HACKER_TEXTURE"
+                    tex.Texture = HackerImage
+                    tex.Face = face
+
+                    tex.StudsPerTileU = 8
+                    tex.StudsPerTileV = 8
+
+                    tex.Transparency = 0.05
+
+                    tex.Parent = v
+
+                end
 
             end
+
         end
 
     else
@@ -1389,18 +1471,22 @@ local function infectMap(enable)
                 obj.Material = data.Material
                 obj.Color = data.Color
 
-                local tex = obj:FindFirstChild("HACKER_TEXTURE")
+                for _,x in pairs(obj:GetChildren()) do
 
-                if tex then
-                    tex:Destroy()
+                    if x.Name == "HACKER_TEXTURE" then
+                        x:Destroy()
+                    end
+
                 end
 
             end
+
         end
 
         table.clear(ModifiedTextures)
 
     end
+
 end
 
 --// EFFECT LOOP
@@ -1410,31 +1496,30 @@ task.spawn(function()
 
         if Enabled then
 
-            -- SKY
+            -- SKYBOX
             applySkybox(HackerImage)
 
-            -- DARK RED ATMOSPHERE
+            -- DARK WORLD
             Lighting.ClockTime = 0
 
-            Lighting.Brightness = 1.2
+            -- HARD GLITCH BRIGHTNESS
+            Lighting.Brightness = math.random(0,8)
 
-            Lighting.Ambient = Color3.fromRGB(120,0,0)
-            Lighting.OutdoorAmbient = Color3.fromRGB(60,0,0)
+            Lighting.Ambient = Color3.fromRGB(
+                math.random(80,255),
+                0,
+                0
+            )
 
-            -- FOG
-            Lighting.FogColor = Color3.fromRGB(70,0,0)
-            Lighting.FogStart = 0
-            Lighting.FogEnd = 120
-
-            -- ATMOSPHERE
-            Atmosphere.Color = Color3.fromRGB(120,0,0)
-            Atmosphere.Decay = Color3.fromRGB(0,0,0)
-            Atmosphere.Density = 0.3
-            Atmosphere.Haze = 2
+            Lighting.OutdoorAmbient = Color3.fromRGB(
+                math.random(20,120),
+                0,
+                0
+            )
 
         end
 
-        task.wait(1)
+        task.wait(0.05)
 
     end
 
@@ -1442,21 +1527,30 @@ end)
 
 --// TOGGLE
 SkyChangerBox:AddToggle("HackerSkyTroll", {
+
     Text = "Hacker Sky Troll",
     Default = false,
-    Tooltip = "Changes skybox and floor to hacker texture.",
+    Tooltip = "Corrupts the map with glitch effects.",
+
     Callback = function(state)
 
         Enabled = state
 
         if state then
 
+            createHorrorMessage()
+
             applySkybox(HackerImage)
+
             infectMap(true)
 
-            TweenService:Create(Lighting, TweenInfo.new(1.5), {
-                Brightness = 1.2
-            }):Play()
+            TweenService:Create(
+                Lighting,
+                TweenInfo.new(0.4),
+                {
+                    Brightness = 0
+                }
+            ):Play()
 
         else
 
@@ -1465,18 +1559,18 @@ SkyChangerBox:AddToggle("HackerSkyTroll", {
             -- RESET
             Lighting.Brightness = Original.Brightness
             Lighting.ClockTime = Original.ClockTime
-            Lighting.FogEnd = Original.FogEnd
-            Lighting.FogStart = Original.FogStart
-            Lighting.FogColor = Original.FogColor
             Lighting.Ambient = Original.Ambient
             Lighting.OutdoorAmbient = Original.OutdoorAmbient
 
-            Atmosphere.Density = 0
-            Atmosphere.Haze = 0
-
             applySkybox("rbxassetid://159454299")
+
+            if HorrorGui then
+                HorrorGui:Destroy()
+                HorrorGui = nil
+            end
 
         end
 
     end
+
 })
