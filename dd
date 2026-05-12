@@ -6,6 +6,8 @@ local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VirtualUser = game:GetService("VirtualUser")
 local TeleportService = game:GetService("TeleportService")
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
 
 local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
@@ -19,8 +21,8 @@ Library.ForceCheckbox = false
 Library.ShowToggleFrameInKeybinds = true
 
 local Window = Library:CreateWindow({
-    Title = "Exploit tool",
-    Footer = "by_Vo1d",
+    Title = "Exploit tool by Vo1d",
+    Footer = "v1.5",
     ToggleKeybind = Enum.KeyCode.F5,
     NotifySide = "Right",
     ShowCustomCursor = true,
@@ -34,6 +36,7 @@ local Tabs = {
     Movement = Window:AddTab("Movement", "zap"),
     Fly = Window:AddTab("Fly", "rocket"),
     Visual = Window:AddTab("Visual", "eye"),
+    Troll = Window:AddTab("Trolling", ""),
     ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
 }
 
@@ -46,6 +49,7 @@ local JumpBox = Tabs.Movement:AddRightGroupbox("Jump")
 local FlyBox = Tabs.Fly:AddLeftGroupbox("Fly")
 local NoclipBox = Tabs.Fly:AddRightGroupbox("Noclip")
 local VisualBox = Tabs.Visual:AddLeftGroupbox("Visual")
+local SkyChangerBox = Tabs.Visual:AddLeftGroupbox("Sky")
 
 -- ============================================
 -- NOTIFY
@@ -691,199 +695,54 @@ FlyBox:AddSlider("FlySpeed", {
     end
 })
 
--- ============================================
--- SYSTEM VARIABLES
--- ============================================
+local noclip = false
+local characterNoclip
 
-local noclipEnabled = false
-
-local noclipConnection = nil
-local noclipCharacterConnection = nil
-
--- ============================================
--- GET CHARACTER
--- ============================================
-
-local function getCharacter()
-
-    local char =
-        LocalPlayer.Character
-
-    if not char then
-        return nil
-    end
-
-    local humanoid =
-        char:FindFirstChildOfClass("Humanoid")
-
-    if not humanoid then
-        return nil
-    end
-
-    return char
+local function bindCharacterNoclip(char)
+   characterNoclip = char
+   root = char:WaitForChild("HumanoidRootPart")
 end
 
--- ============================================
--- SET NOCLIP
--- ============================================
-
-local function applyNoclip(char)
-
-    for _, obj in ipairs(char:GetDescendants()) do
-
-        if obj:IsA("BasePart") then
-
-            -- KHÔNG đụng Tool handle
-            if obj.Parent:IsA("Tool") then
-                continue
-            end
-
-            -- KHÔNG đụng accessories
-            if obj.Parent:IsA("Accessory") then
-                continue
-            end
-
-            pcall(function()
-
-                obj.CanCollide = false
-
-            end)
-        end
-    end
+local function onCharacterNoclip(char)
+   bindCharacterNoclip(char)
 end
 
--- ============================================
--- RESTORE COLLISION
--- ============================================
+if player.Character then
+    onCharacterNoclip(player.Character)
+end
+player.CharacterAdded:Connect(onCharacterNoclip)
 
-local function restoreCollision(char)
+local function applyNoclip()
+   if not noclip or not characterNoclip then return end
 
-    for _, obj in ipairs(char:GetDescendants()) do
-
-        if obj:IsA("BasePart") then
-
-            if obj.Parent:IsA("Tool") then
-                continue
-            end
-
-            if obj.Parent:IsA("Accessory") then
-                continue
-            end
-
-            pcall(function()
-
-                obj.CanCollide = true
-
-            end)
-        end
-    end
+   for _, v in pairs(characterNoclip:GetDescendants()) do
+      if v:IsA("BasePart") then
+         v.CanCollide = false
+      end
+   end
 end
 
--- ============================================
--- ENABLE
--- ============================================
+RunService.Stepped:Connect(applyNoclip)
 
-local function enableNoclip()
+local function resetNoclip()
+   if not characterNoclip then return end
 
-    if noclipConnection then
-
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-
-    noclipConnection =
-        RunService.Heartbeat:Connect(function()
-
-            local char =
-                getCharacter()
-
-            if not char then
-                return
-            end
-
-            applyNoclip(char)
-        end)
-
-    -- RESPAWN SUPPORT
-
-    if noclipCharacterConnection then
-
-        noclipCharacterConnection:Disconnect()
-        noclipCharacterConnection = nil
-    end
-
-    noclipCharacterConnection =
-        LocalPlayer.CharacterAdded:Connect(function()
-
-            task.wait(1)
-
-            if noclipEnabled then
-
-                local char =
-                    getCharacter()
-
-                if char then
-                    applyNoclip(char)
-                end
-            end
-        end)
+   for _, v in pairs(characterNoclip:GetDescendants()) do
+      if v:IsA("BasePart") then
+         v.CanCollide = true
+      end
+   end
 end
-
--- ============================================
--- DISABLE
--- ============================================
-
-local function disableNoclip()
-
-    if noclipConnection then
-
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-
-    if noclipCharacterConnection then
-
-        noclipCharacterConnection:Disconnect()
-        noclipCharacterConnection = nil
-    end
-
-    local char =
-        getCharacter()
-
-    if char then
-
-        restoreCollision(char)
-    end
-end
-
--- ============================================
--- TOGGLE
--- ============================================
-
-local function toggleNoclip(state)
-
-    noclipEnabled = state
-
-    if state then
-
-        enableNoclip()
-
-    else
-
-        disableNoclip()
-    end
-end
-
--- ============================================
--- UI
--- ============================================
 
 NoclipBox:AddToggle("Noclip", {
     Text = "Noclip",
     Default = false,
     Tooltip = "Walk through walls.",
-    Callback = function(state)
-        toggleNoclip(state)
+    Callback = function(v)
+        noclip = v
+        if not v then
+            resetNoclip()
+        end
     end
 })
 
@@ -993,86 +852,91 @@ SpeedBox:AddSlider("WalkSpeedValue", {
     end
 })
 
--- ============================================
--- VARIABLES
--- ============================================
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
 local jumpPowerEnabled = false
-
-local defaultJumpPower = 50
 local customJumpPower = 120
 
-local jumpPowerConnection = nil
+local jumpConnection
 
--- ============================================
--- ENABLE
--- ============================================
-
-local function enableJumpPower()
-
-    if jumpPowerConnection then
-        jumpPowerConnection:Disconnect()
+local function applyJumpPower(humanoid)
+    if not humanoid then
+        return
     end
 
-    jumpPowerConnection =
-        RunService.Heartbeat:Connect(function()
-
-            local char =
-                LocalPlayer.Character
-
-            if not char then
-                return
-            end
-
-            local humanoid =
-                char:FindFirstChildOfClass("Humanoid")
-
-            if not humanoid then
-                return
-            end
-
-            humanoid.UseJumpPower = true
-            humanoid.JumpPower =
-                customJumpPower
-        end)
+    humanoid.UseJumpPower = true
+    humanoid.JumpPower = customJumpPower
 end
 
--- ============================================
--- DISABLE
--- ============================================
-
-local function disableJumpPower()
-
-    if jumpPowerConnection then
-        jumpPowerConnection:Disconnect()
-        jumpPowerConnection = nil
+local function setupHumanoid(humanoid)
+    if jumpConnection then
+        jumpConnection:Disconnect()
+        jumpConnection = nil
     end
 
-    local char =
-        LocalPlayer.Character
+    applyJumpPower(humanoid)
 
+    jumpConnection = humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+        if jumpPowerEnabled and humanoid.JumpPower ~= customJumpPower then
+            humanoid.JumpPower = customJumpPower
+        end
+    end)
+end
+
+local function enableJumpPower()
+    local char = player.Character
     if not char then
         return
     end
 
-    local humanoid =
-        char:FindFirstChildOfClass("Humanoid")
-
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
     if humanoid then
-
-        humanoid.UseJumpPower = true
-
-        humanoid.JumpPower =
-            defaultJumpPower
+        setupHumanoid(humanoid)
     end
 end
 
+local function disableJumpPower()
+    if jumpConnection then
+        jumpConnection:Disconnect()
+        jumpConnection = nil
+    end
+
+    local char = player.Character
+    if not char then
+        return
+    end
+
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.UseJumpPower = true
+        humanoid.JumpPower = 50 -- default Roblox
+    end
+end
+
+local function onCharacterAdded(char)
+    local humanoid = char:WaitForChild("Humanoid")
+
+    if jumpPowerEnabled then
+        setupHumanoid(humanoid)
+    end
+end
+
+player.CharacterAdded:Connect(onCharacterAdded)
+
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+
+-- Toggle
 JumpBox:AddToggle("JumpPower", {
     Text = "JumpPower Hack",
     Default = false,
     Tooltip = "Can change your jump power.",
+
     Callback = function(state)
         jumpPowerEnabled = state
+
         if state then
             enableJumpPower()
         else
@@ -1081,14 +945,28 @@ JumpBox:AddToggle("JumpPower", {
     end
 })
 
+-- Slider
 JumpBox:AddSlider("JumpPowerValue", {
     Text = "Jump Power",
     Default = 120,
     Min = 50,
     Max = 500,
     Rounding = 0,
+
     Callback = function(value)
         customJumpPower = value
+
+        if jumpPowerEnabled then
+            local char = player.Character
+
+            if char then
+                local humanoid = char:FindFirstChildOfClass("Humanoid")
+
+                if humanoid then
+                    applyJumpPower(humanoid)
+                end
+            end
+        end
     end
 })
 
@@ -1415,5 +1293,190 @@ OrbitBox:AddSlider(
     Callback = function(value)
 
         orbitSpeed = value
+    end
+})
+
+--// SETTINGS
+local Enabled = false
+
+local HackerImage = "rbxassetid://7139481935"
+
+local Original = {
+    Brightness = Lighting.Brightness,
+    ClockTime = Lighting.ClockTime,
+    FogEnd = Lighting.FogEnd,
+    FogStart = Lighting.FogStart,
+    FogColor = Lighting.FogColor,
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient
+}
+
+--// SKY
+local Sky = Lighting:FindFirstChildOfClass("Sky")
+
+if not Sky then
+    Sky = Instance.new("Sky")
+    Sky.Parent = Lighting
+end
+
+--// ATMOSPHERE
+local Atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
+
+if not Atmosphere then
+    Atmosphere = Instance.new("Atmosphere")
+    Atmosphere.Parent = Lighting
+end
+
+--// CACHE
+local ModifiedTextures = {}
+
+--// FUNCTIONS
+
+local function applySkybox(id)
+    Sky.SkyboxBk = id
+    Sky.SkyboxDn = id
+    Sky.SkyboxFt = id
+    Sky.SkyboxLf = id
+    Sky.SkyboxRt = id
+    Sky.SkyboxUp = id
+end
+
+local function infectMap(enable)
+
+    if enable then
+
+        for _,v in pairs(workspace:GetDescendants()) do
+
+            if v:IsA("BasePart") then
+
+                if not ModifiedTextures[v] then
+                    ModifiedTextures[v] = {
+                        Material = v.Material,
+                        Color = v.Color
+                    }
+                end
+
+                -- MAP COLOR
+                v.Material = Enum.Material.SmoothPlastic
+                v.Color = Color3.fromRGB(25,0,0)
+
+                -- REMOVE OLD
+                local old = v:FindFirstChild("HACKER_TEXTURE")
+
+                if old then
+                    old:Destroy()
+                end
+
+                -- TOP TEXTURE
+                local tex = Instance.new("Texture")
+                tex.Name = "HACKER_TEXTURE"
+                tex.Texture = HackerImage
+                tex.Face = Enum.NormalId.Top
+                tex.StudsPerTileU = 10
+                tex.StudsPerTileV = 10
+                tex.Transparency = 0.15
+                tex.Parent = v
+
+            end
+        end
+
+    else
+
+        for obj,data in pairs(ModifiedTextures) do
+
+            if obj and obj.Parent then
+
+                obj.Material = data.Material
+                obj.Color = data.Color
+
+                local tex = obj:FindFirstChild("HACKER_TEXTURE")
+
+                if tex then
+                    tex:Destroy()
+                end
+
+            end
+        end
+
+        table.clear(ModifiedTextures)
+
+    end
+end
+
+--// EFFECT LOOP
+task.spawn(function()
+
+    while true do
+
+        if Enabled then
+
+            -- SKY
+            applySkybox(HackerImage)
+
+            -- DARK RED ATMOSPHERE
+            Lighting.ClockTime = 0
+
+            Lighting.Brightness = 1.2
+
+            Lighting.Ambient = Color3.fromRGB(120,0,0)
+            Lighting.OutdoorAmbient = Color3.fromRGB(60,0,0)
+
+            -- FOG
+            Lighting.FogColor = Color3.fromRGB(70,0,0)
+            Lighting.FogStart = 0
+            Lighting.FogEnd = 120
+
+            -- ATMOSPHERE
+            Atmosphere.Color = Color3.fromRGB(120,0,0)
+            Atmosphere.Decay = Color3.fromRGB(0,0,0)
+            Atmosphere.Density = 0.3
+            Atmosphere.Haze = 2
+
+        end
+
+        task.wait(1)
+
+    end
+
+end)
+
+--// TOGGLE
+SkyChangerBox:AddToggle("HackerSkyTroll", {
+    Text = "Hacker Sky Troll",
+    Default = false,
+    Tooltip = "Changes skybox and floor to hacker texture.",
+    Callback = function(state)
+
+        Enabled = state
+
+        if state then
+
+            applySkybox(HackerImage)
+            infectMap(true)
+
+            TweenService:Create(Lighting, TweenInfo.new(1.5), {
+                Brightness = 1.2
+            }):Play()
+
+        else
+
+            infectMap(false)
+
+            -- RESET
+            Lighting.Brightness = Original.Brightness
+            Lighting.ClockTime = Original.ClockTime
+            Lighting.FogEnd = Original.FogEnd
+            Lighting.FogStart = Original.FogStart
+            Lighting.FogColor = Original.FogColor
+            Lighting.Ambient = Original.Ambient
+            Lighting.OutdoorAmbient = Original.OutdoorAmbient
+
+            Atmosphere.Density = 0
+            Atmosphere.Haze = 0
+
+            applySkybox("rbxassetid://159454299")
+
+        end
+
     end
 })
