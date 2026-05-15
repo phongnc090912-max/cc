@@ -1,3 +1,7 @@
+-- ==================================================
+-- SERVICES
+-- ==================================================
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -8,11 +12,26 @@ local VirtualUser = game:GetService("VirtualUser")
 local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local player = Players.LocalPlayer
+
+-- ==================================================
+-- UI + COLOR
+-- ==================================================
 
 local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
 local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
+
+local VOID_COLORS = {
+    Main = Color3.fromRGB(145, 0, 255),
+    Light = Color3.fromRGB(220, 120, 255),
+    Dark = Color3.fromRGB(10, 10, 15),
+    Text = Color3.fromRGB(255,255,255),
+    Gray = Color3.fromRGB(130,130,130),
+
+}
 
 local Options = Library.Options
 local Toggles = Library.Toggles
@@ -36,7 +55,6 @@ local Tabs = {
     Movement = Window:AddTab("Movement", "zap"),
     Fly = Window:AddTab("Fly", "rocket"),
     Visual = Window:AddTab("Visual", "eye"),
-    Troll = Window:AddTab("Trolling", "terminal"),
     ["UI Settings"] = Window:AddTab("UI Settings", "sliders-horizontal"),
 }
 
@@ -49,7 +67,6 @@ local JumpBox = Tabs.Movement:AddRightGroupbox("Jump")
 local FlyBox = Tabs.Fly:AddLeftGroupbox("Fly")
 local NoclipBox = Tabs.Fly:AddRightGroupbox("Noclip")
 local VisualBox = Tabs.Visual:AddLeftGroupbox("Visual")
-local SkyChangerBox = Tabs.Visual:AddLeftGroupbox("Sky")
 
 -- ============================================
 -- NOTIFY
@@ -60,6 +77,285 @@ Library:Notify({
     Description = "Thank you for using my script",
     Time = 5
 })
+
+-- ============================================
+-- KEYBINDS INFO
+-- ============================================
+
+Library:Notify({
+    Title = "KEYBINDS",
+    Description =
+        "Fly [K] | Orbit [Y] | ESP [P] | InfJump [J]",
+    Time = 7
+})
+
+-- ============================================
+-- HACKER LIGHTING
+-- ============================================
+
+TweenService:Create(
+
+    Lighting,
+
+    TweenInfo.new(1),
+
+    {
+
+        Ambient = Color3.fromRGB(35,0,55)
+
+    }
+
+):Play()
+
+Lighting.EnvironmentDiffuseScale = 0.25
+Lighting.EnvironmentSpecularScale = 0.25
+
+-- ============================================
+-- WATERMARK
+-- ============================================
+
+local Watermark = Drawing.new("Text")
+
+Watermark.Text = "VOID SYSTEM // PRIVATE BUILD"
+Watermark.Size = 18
+Watermark.Color = VOID_COLORS.Main
+Watermark.Outline = true
+Watermark.Font = 2
+Watermark.Position = Vector2.new(14,14)
+Watermark.Visible = true
+
+-- ============================================
+-- UI SETTINGS TAB
+-- ============================================
+
+local UIBox =
+    Tabs["UI Settings"]:AddLeftGroupbox(
+        "VOID SETTINGS"
+    )
+
+UIBox:AddLabel("VOID SYSTEM")
+UIBox:AddDivider()
+
+-- ============================================
+-- TRANSPARENCY
+-- ============================================
+
+Library.BackgroundTransparency = 0.45
+
+-- ============================================
+-- BLUR
+-- ============================================
+
+local Blur = Instance.new("BlurEffect")
+Blur.Size = 0
+Blur.Parent = Lighting
+
+UIBox:AddToggle("BlurUI", {
+
+    Text = "Blur Background",
+
+    Default = true,
+
+    Callback = function(state)
+
+        if state then
+
+            TweenService:Create(
+
+                Blur,
+
+                TweenInfo.new(0.5),
+
+                {
+
+                    Size = 14
+
+                }
+
+            ):Play()
+
+        else
+
+            TweenService:Create(
+
+                Blur,
+
+                TweenInfo.new(0.5),
+
+                {
+
+                    Size = 0
+
+                }
+
+            ):Play()
+
+        end
+    end
+})
+
+-- ============================================
+-- THEME BUTTONS
+-- ============================================
+
+local ThemeBox =
+    Tabs["UI Settings"]:AddRightGroupbox(
+        "VOID THEME"
+    )
+
+ThemeBox:AddLabel("HACKER STYLE")
+ThemeBox:AddDivider()
+
+ThemeBox:AddButton("Purple Neon", function()
+
+    TweenService:Create(
+
+        Lighting,
+
+        TweenInfo.new(1),
+
+        {
+
+            Ambient =
+                Color3.fromRGB(40,0,70)
+
+        }
+
+    ):Play()
+
+    Library:Notify({
+        Title = "THEME",
+        Description = "Purple Neon Loaded",
+        Time = 3
+    })
+
+end)
+
+ThemeBox:AddButton("Dark Mode", function()
+
+    TweenService:Create(
+
+        Lighting,
+
+        TweenInfo.new(1),
+
+        {
+
+            Ambient =
+                Color3.fromRGB(15,15,15)
+
+        }
+
+    ):Play()
+
+    Library:Notify({
+        Title = "THEME",
+        Description = "Dark Mode Loaded",
+        Time = 3
+    })
+
+end)
+
+ThemeBox:AddButton("Void Red", function()
+
+    TweenService:Create(
+
+        Lighting,
+
+        TweenInfo.new(1),
+
+        {
+
+            Ambient =
+                Color3.fromRGB(70,0,0)
+
+        }
+
+    ):Play()
+
+    Library:Notify({
+        Title = "THEME",
+        Description = "Void Red Loaded",
+        Time = 3
+    })
+
+end)
+
+-- ============================================
+-- TOP GLOW LINE
+-- ============================================
+
+task.spawn(function()
+
+    task.wait(2)
+
+    for _, gui in pairs(
+        CoreGui:GetDescendants()
+    ) do
+
+        if gui:IsA("ScreenGui") then
+
+            if tostring(gui.Name):lower():find(
+                "obsidian"
+            ) then
+
+                local Glow =
+                    Instance.new("Frame")
+
+                Glow.Name =
+                    "VOID_GLOW"
+
+                Glow.Size =
+                    UDim2.new(1,0,0,2)
+
+                Glow.BorderSizePixel = 0
+
+                Glow.BackgroundColor3 =
+                    VOID_COLORS.Main
+
+                Glow.Parent = gui
+
+                local Gradient =
+                    Instance.new("UIGradient")
+
+                Gradient.Color =
+                    ColorSequence.new({
+
+                    ColorSequenceKeypoint.new(
+                        0,
+                        Color3.fromRGB(
+                            90,
+                            0,
+                            255
+                        )
+                    ),
+
+                    ColorSequenceKeypoint.new(
+                        0.5,
+                        Color3.fromRGB(
+                            220,
+                            120,
+                            255
+                        )
+                    ),
+
+                    ColorSequenceKeypoint.new(
+                        1,
+                        Color3.fromRGB(
+                            90,
+                            0,
+                            255
+                        )
+                    )
+
+                })
+
+                Gradient.Parent =
+                    Glow
+            end
+        end
+    end
+end)
 
 -- ============================================
 -- PLAYER ESP VARIABLES
@@ -700,7 +996,7 @@ local characterNoclip
 
 local function bindCharacterNoclip(char)
    characterNoclip = char
-   root = char:WaitForChild("HumanoidRootPart")
+   local root = char:WaitForChild("HumanoidRootPart")
 end
 
 local function onCharacterNoclip(char)
@@ -851,9 +1147,6 @@ SpeedBox:AddSlider("WalkSpeedValue", {
         customWalkSpeed = value
     end
 })
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
 
 local jumpPowerEnabled = false
 local customJumpPower = 120
@@ -1255,7 +1548,7 @@ OrbitBox:AddDropdown(
 
     Values = orbitPlayerList,
 
-    Default = 1,
+    Default = nil,
 
     Callback = function(value)
 
@@ -1296,281 +1589,115 @@ OrbitBox:AddSlider(
     end
 })
 
---// SETTINGS
-local Enabled = false
+-- ============================================
+-- KEYBINDS
+-- ============================================
 
-local HackerImage = "rbxassetid://7139481935"
+UserInputService.InputBegan:Connect(function(input, gp)
 
-local Original = {
-    Brightness = Lighting.Brightness,
-    ClockTime = Lighting.ClockTime,
-    Ambient = Lighting.Ambient,
-    OutdoorAmbient = Lighting.OutdoorAmbient
-}
-
---// SKY
-local Sky = Lighting:FindFirstChildOfClass("Sky")
-
-if not Sky then
-    Sky = Instance.new("Sky")
-    Sky.Parent = Lighting
-end
-
---// CACHE
-local ModifiedTextures = {}
-
---// GLITCH GUI
-local HorrorGui = nil
-
---// FUNCTIONS
-
-local function applySkybox(id)
-
-    Sky.SkyboxBk = id
-    Sky.SkyboxDn = id
-    Sky.SkyboxFt = id
-    Sky.SkyboxLf = id
-    Sky.SkyboxRt = id
-    Sky.SkyboxUp = id
-
-end
-
-local function createHorrorMessage()
-
-    if HorrorGui then
-        HorrorGui:Destroy()
+    if gp then
+        return
     end
 
-    HorrorGui = Instance.new("ScreenGui")
-    HorrorGui.Name = "HORROR_GUI"
-    HorrorGui.IgnoreGuiInset = true
-    HorrorGui.ResetOnSpawn = false
-    HorrorGui.Parent = game.Players.LocalPlayer.PlayerGui
+    -- K = Fly + Noclip
 
-    local Text = Instance.new("TextLabel")
-    Text.Size = UDim2.new(1,0,1,0)
-    Text.BackgroundTransparency = 1
-    Text.Text = "SYSTEM 67 ERROR-ERROR 367"
-    Text.Font = Enum.Font.Arcade
-    Text.TextScaled = true
-    Text.TextColor3 = Color3.fromRGB(255,0,0)
-    Text.TextStrokeTransparency = 0
-    Text.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-    Text.Parent = HorrorGui
+    if input.KeyCode == Enum.KeyCode.K then
 
-    -- GLITCH LOOP
-    task.spawn(function()
+        Toggles.Fly:SetValue(
+            not Toggles.Fly.Value
+        )
 
-        while HorrorGui and HorrorGui.Parent and Enabled do
+        Toggles.Noclip:SetValue(
+            not Toggles.Noclip.Value
+        )
 
-            Text.Position = UDim2.new(
-                0,
-                math.random(-25,25),
-                0,
-                math.random(-25,25)
-            )
+        Library:Notify({
 
-            Text.Rotation = math.random(-4,4)
+            Title = "MOVEMENT",
 
-            Text.TextTransparency = math.random(0,30)/100
+            Description =
+                Toggles.Fly.Value
+                and "Fly Enabled"
+                or "Fly Disabled",
 
-            Text.TextColor3 = Color3.fromRGB(
-                math.random(180,255),
-                0,
-                0
-            )
+            Time = 3
 
-            task.wait(0.03)
-
-        end
-
-    end)
-
-    -- AUTO REMOVE
-    task.delay(3,function()
-
-        if HorrorGui then
-
-            TweenService:Create(
-                Text,
-                TweenInfo.new(1),
-                {
-                    TextTransparency = 1
-                }
-            ):Play()
-
-            task.wait(1)
-
-            if HorrorGui then
-                HorrorGui:Destroy()
-                HorrorGui = nil
-            end
-
-        end
-
-    end)
-
-end
-
-local function infectMap(enable)
-
-    if enable then
-
-        for _,v in pairs(workspace:GetDescendants()) do
-
-            if v:IsA("BasePart") then
-
-                if not ModifiedTextures[v] then
-
-                    ModifiedTextures[v] = {
-                        Material = v.Material,
-                        Color = v.Color
-                    }
-
-                end
-
-                -- DARK RED
-                v.Material = Enum.Material.SmoothPlastic
-                v.Color = Color3.fromRGB(20,0,0)
-
-                -- REMOVE OLD
-                for _,x in pairs(v:GetChildren()) do
-                    if x.Name == "HACKER_TEXTURE" then
-                        x:Destroy()
-                    end
-                end
-
-                -- ALL SIDES
-                for _,face in pairs(Enum.NormalId:GetEnumItems()) do
-
-                    local tex = Instance.new("Texture")
-
-                    tex.Name = "HACKER_TEXTURE"
-                    tex.Texture = HackerImage
-                    tex.Face = face
-
-                    tex.StudsPerTileU = 8
-                    tex.StudsPerTileV = 8
-
-                    tex.Transparency = 0.05
-
-                    tex.Parent = v
-
-                end
-
-            end
-
-        end
-
-    else
-
-        for obj,data in pairs(ModifiedTextures) do
-
-            if obj and obj.Parent then
-
-                obj.Material = data.Material
-                obj.Color = data.Color
-
-                for _,x in pairs(obj:GetChildren()) do
-
-                    if x.Name == "HACKER_TEXTURE" then
-                        x:Destroy()
-                    end
-
-                end
-
-            end
-
-        end
-
-        table.clear(ModifiedTextures)
+        })
 
     end
 
-end
+    -- Y = Orbit
 
---// EFFECT LOOP
-task.spawn(function()
+    if input.KeyCode == Enum.KeyCode.Y then
 
-    while true do
+        Toggles.OrbitToggle:SetValue(
+            not Toggles.OrbitToggle.Value
+        )
 
-        if Enabled then
+        Library:Notify({
 
-            -- SKYBOX
-            applySkybox(HackerImage)
+            Title = "ORBIT",
 
-            -- DARK WORLD
-            Lighting.ClockTime = 0
+            Description =
+                Toggles.OrbitToggle.Value
+                and "Orbit Enabled"
+                or "Orbit Disabled",
 
-            -- HARD GLITCH BRIGHTNESS
-            Lighting.Brightness = math.random(0,8)
+            Time = 3
 
-            Lighting.Ambient = Color3.fromRGB(
-                math.random(80,255),
-                0,
-                0
-            )
+        })
 
-            Lighting.OutdoorAmbient = Color3.fromRGB(
-                math.random(20,120),
-                0,
-                0
-            )
+    end
 
-        end
+    -- P = ESP ALL
 
-        task.wait(0.05)
+    if input.KeyCode == Enum.KeyCode.P then
+
+        local state =
+            not Toggles.ESPplayers.Value
+
+        Toggles.ESPplayers:SetValue(state)
+        Toggles.PlayerChams:SetValue(state)
+        Toggles.PlayerName:SetValue(state)
+        Toggles.PlayerHealth:SetValue(state)
+        Toggles.PlayerDistance:SetValue(state)
+
+        Library:Notify({
+
+            Title = "ESP",
+
+            Description =
+                state
+                and "ESP Enabled"
+                or "ESP Disabled",
+
+            Time = 3
+
+        })
+
+    end
+
+    -- J = Infinite Jump
+
+    if input.KeyCode == Enum.KeyCode.J then
+
+        Toggles.InfiniteJump:SetValue(
+            not Toggles.InfiniteJump.Value
+        )
+
+        Library:Notify({
+
+            Title = "INFINITE JUMP",
+
+            Description =
+                Toggles.InfiniteJump.Value
+                and "Enabled"
+                or "Disabled",
+
+            Time = 3
+
+        })
 
     end
 
 end)
-
---// TOGGLE
-SkyChangerBox:AddToggle("HackerSkyTroll", {
-
-    Text = "Hacker Sky Troll",
-    Default = false,
-    Tooltip = "Corrupts the map with glitch effects.",
-
-    Callback = function(state)
-
-        Enabled = state
-
-        if state then
-
-            createHorrorMessage()
-
-            applySkybox(HackerImage)
-
-            infectMap(true)
-
-            TweenService:Create(
-                Lighting,
-                TweenInfo.new(0.4),
-                {
-                    Brightness = 0
-                }
-            ):Play()
-
-        else
-
-            infectMap(false)
-
-            -- RESET
-            Lighting.Brightness = Original.Brightness
-            Lighting.ClockTime = Original.ClockTime
-            Lighting.Ambient = Original.Ambient
-            Lighting.OutdoorAmbient = Original.OutdoorAmbient
-
-            applySkybox("rbxassetid://159454299")
-
-            if HorrorGui then
-                HorrorGui:Destroy()
-                HorrorGui = nil
-            end
-
-        end
-
-    end
-
-})
